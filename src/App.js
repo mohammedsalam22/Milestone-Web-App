@@ -1,25 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
+// App.js
+import  { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import LoginPage from './pages/login-page/LoginPage';
+import AppThemeProvider from './theme/ThemeProvider';
+import MainLayout from './pages/dashboard-page/components/MainLayout';
+import RouteWrapper from './RouteWrapper'; 
 
-function App() {
+const App = () => {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed);
+  };  
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AppThemeProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route
+            path="/*"
+            element={
+              <MainLayout toggleSidebar={toggleSidebar} isSidebarCollapsed={isSidebarCollapsed}>
+                <RouteWrapper />
+              </MainLayout>
+            }
+          />
+        </Routes>
+      </Router>
+    </AppThemeProvider>
   );
-}
+};
 
 export default App;
