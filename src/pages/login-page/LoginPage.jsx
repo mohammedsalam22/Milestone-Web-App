@@ -14,12 +14,19 @@ import { StyledPaper, StyledAvatar, StyledTextField, StyledButton } from '../../
 import { useTheme } from '../../theme/ThemeProvider';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { changeLanguage, LANGUAGES } from '../../services/i18n'; 
+import { changeLanguage, LANGUAGES } from '../../services/i18n';
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from '../../featuers/login-slice/loginSlice';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [usernameError, setUsernameError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [sessionExpiredMsg, setSessionExpiredMsg] = useState('');
+  const dispatch = useDispatch();
+  const { user, loading, error } = useSelector((state) => state.login);
   const { getCurrentTheme } = useTheme();
   const theme = getCurrentTheme();
   const navigate = useNavigate();
@@ -30,9 +37,32 @@ const LoginPage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSubmit = (event) => {
+  useEffect(() => {
+    if (localStorage.getItem('sessionExpired')) {
+      setSessionExpiredMsg('Session expired, please log in again.');
+      localStorage.removeItem('sessionExpired');
+    }
+  }, []);
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    navigate('/dashboard');
+    let valid = true;
+    setUsernameError('');
+    setPasswordError('');
+    if (!username.trim()) {
+      setUsernameError('Username is required');
+      valid = false;
+    }
+    if (!password) {
+      setPasswordError('Password is required');
+      valid = false;
+    }
+    if (!valid) return;
+    const resultAction = await dispatch(login({ username, password }));
+    if (login.fulfilled.match(resultAction)) {
+      // Optionally store tokens in localStorage/sessionStorage here
+      navigate('/dashboard');
+    }
   };
 
   const handleLanguageChange = (event) => {
@@ -85,6 +115,12 @@ const LoginPage = () => {
                 </Typography>
               </Slide>
 
+              {sessionExpiredMsg && (
+                <Typography color="error" sx={{ mt: 1, mb: 1 }}>
+                  {sessionExpiredMsg}
+                </Typography>
+              )}
+
               <Fade in={showForm} timeout={1500}>
                 <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
                   <StyledTextField
@@ -98,6 +134,8 @@ const LoginPage = () => {
                     autoFocus
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    error={!!usernameError}
+                    helperText={usernameError}
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         '& fieldset': {
@@ -124,6 +162,8 @@ const LoginPage = () => {
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    error={!!passwordError}
+                    helperText={passwordError}
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         '& fieldset': {
@@ -139,6 +179,11 @@ const LoginPage = () => {
                       },
                     }}
                   />
+                  {error && (
+                    <Typography color="error" sx={{ mt: 1, mb: 1 }}>
+                      {error}
+                    </Typography>
+                  )}
                   <StyledButton
                     type="submit"
                     fullWidth
@@ -151,8 +196,9 @@ const LoginPage = () => {
                         backgroundColor: theme.palette.primary.light,
                       },
                     }}
+                    disabled={loading}
                   >
-                    {t('signIn')}
+                    {loading ? t('signingIn') : t('signIn')}
                   </StyledButton>
                 </Box>
               </Fade>

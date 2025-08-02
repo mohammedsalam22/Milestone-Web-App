@@ -23,12 +23,14 @@ import {
 import { useTheme } from '../../../theme/ThemeProvider';
 import { useTranslation } from 'react-i18next';
 import { StyledAppBar, StyledIconButton } from '../../../styles/NavbarStyles'; // Import styled components
+import ThemeSwitcher from '../../../components/ThemeSwitcher';
 
 const Navbar = ({ onToggleSidebar, isSidebarCollapsed }) => {
-    const { currentThemeName, switchTheme, getCurrentTheme } = useTheme();
+    const { currentMode, currentThemeName, switchMode, switchTheme, getCurrentTheme } = useTheme();
     const theme = getCurrentTheme();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [notificationAnchor, setNotificationAnchor] = React.useState(null);
+    const [themeSwitcherOpen, setThemeSwitcherOpen] = React.useState(false);
     const isMenuOpen = Boolean(anchorEl);
     const isNotificationOpen = Boolean(notificationAnchor);
     const { t, i18n } = useTranslation();
@@ -47,7 +49,7 @@ const Navbar = ({ onToggleSidebar, isSidebarCollapsed }) => {
     };
 
     const handleThemeToggle = () => {
-        switchTheme(currentThemeName === 'light' ? 'dark' : 'light');
+        switchMode(currentMode === 'light' ? 'dark' : 'light');
     };
 
     const changeLanguage = (event) => {
@@ -80,6 +82,9 @@ const Navbar = ({ onToggleSidebar, isSidebarCollapsed }) => {
                     mt: 1,
                     borderRadius: 2,
                     minWidth: 200,
+                    backgroundColor: theme.palette.mode === 'dark' 
+                      ? theme.palette.background.default 
+                      : theme.palette.background.paper,
                     '& .MuiMenuItem-root': {
                         px: 2,
                         py: 1.5,
@@ -87,7 +92,9 @@ const Navbar = ({ onToggleSidebar, isSidebarCollapsed }) => {
                         mx: 1,
                         my: 0.5,
                         '&:hover': {
-                            backgroundColor: '#f1f5f9',
+                            backgroundColor: theme.palette.mode === 'dark'
+                              ? 'rgba(255, 255, 255, 0.08)'
+                              : 'rgba(0, 0, 0, 0.04)',
                         },
                         ...(isRTL(i18n.language) && { 
                             textAlign: 'right',
@@ -97,15 +104,27 @@ const Navbar = ({ onToggleSidebar, isSidebarCollapsed }) => {
             }}
         >
             <MenuItem onClick={handleMenuClose} sx={{ textAlign: isRTL(i18n.language) ? 'right' : 'left' }}>
-                <AccountCircleIcon sx={{ mr: 2, color: theme.palette.sidebarText, ...(isRTL(i18n.language) && { ml: 2, mr: 0 }) }} />
+                <AccountCircleIcon sx={{ 
+                    mr: 2, 
+                    color: theme.palette.text.secondary, 
+                    ...(isRTL(i18n.language) && { ml: 2, mr: 0 }) 
+                }} />
                 {t('profile')}
             </MenuItem>
-            <MenuItem onClick={handleMenuClose} sx={{ textAlign: isRTL(i18n.language) ? 'right' : 'left' }}>
-                <SettingsIcon sx={{ mr: 2, color: theme.palette.sidebarText, ...(isRTL(i18n.language) && { ml: 2, mr: 0 }) }} />
-                {t('settings')}
+            <MenuItem onClick={() => { handleMenuClose(); setThemeSwitcherOpen(true); }} sx={{ textAlign: isRTL(i18n.language) ? 'right' : 'left' }}>
+                <SettingsIcon sx={{ 
+                    mr: 2, 
+                    color: theme.palette.text.secondary, 
+                    ...(isRTL(i18n.language) && { ml: 2, mr: 0 }) 
+                }} />
+                {t('themeSettings')}
             </MenuItem>
             <MenuItem onClick={handleMenuClose} sx={{ textAlign: isRTL(i18n.language) ? 'right' : 'left' }}>
-                <LogoutIcon sx={{ mr: 2, color: theme.palette.sidebarText, ...(isRTL(i18n.language) && { ml: 2, mr: 0 }) }} />
+                <LogoutIcon sx={{ 
+                    mr: 2, 
+                    color: theme.palette.text.secondary, 
+                    ...(isRTL(i18n.language) && { ml: 2, mr: 0 }) 
+                }} />
                 {t('logout')}
             </MenuItem>
         </Menu>
@@ -133,13 +152,20 @@ const Navbar = ({ onToggleSidebar, isSidebarCollapsed }) => {
                     borderRadius: 2,
                     minWidth: 300,
                     maxHeight: 400,
+                    backgroundColor: theme.palette.mode === 'dark' 
+                      ? theme.palette.background.default 
+                      : theme.palette.background.paper,
                     ...(isRTL(i18n.language) && { 
                         textAlign: 'right',
                     }),
                 },
             }}
         >
-            <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}`, ...(isRTL(i18n.language) && { textAlign: 'right' }) }}>
+            <Box sx={{ 
+                p: 2, 
+                borderBottom: `1px solid ${theme.palette.divider}`, 
+                ...(isRTL(i18n.language) && { textAlign: 'right' }) 
+            }}>
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
                     {t('notifications')}
                 </Typography>
@@ -211,7 +237,7 @@ const Navbar = ({ onToggleSidebar, isSidebarCollapsed }) => {
                     {/* Theme Toggle Switch */}
                     <FormControlLabel
                         control={<Switch
-                            checked={currentThemeName === 'dark'}
+                            checked={currentMode === 'dark'}
                             onChange={handleThemeToggle}
                             icon={<Brightness7Icon sx={{ color: theme.palette.text.primary }} />}
                             checkedIcon={<Brightness4Icon sx={{ color: theme.palette.text.primary }} />}
@@ -219,7 +245,7 @@ const Navbar = ({ onToggleSidebar, isSidebarCollapsed }) => {
                         labelPlacement="start"
                         label={
                             <Typography sx={{ color: theme.palette.text.primary }}>
-                                {currentThemeName === 'light' ? t('light') : t('dark')}
+                                {currentMode === 'light' ? t('light') : t('dark')}
                             </Typography>
                         }
                         sx={{ mr: 2 }}
@@ -261,6 +287,10 @@ const Navbar = ({ onToggleSidebar, isSidebarCollapsed }) => {
             </StyledAppBar>
             {renderMenu}
             {renderNotificationMenu}
+            <ThemeSwitcher 
+                open={themeSwitcherOpen} 
+                onClose={() => setThemeSwitcherOpen(false)} 
+            />
         </Box>
     );
 };

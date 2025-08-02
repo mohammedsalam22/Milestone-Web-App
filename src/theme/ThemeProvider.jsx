@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
-import { getTheme } from './Theme'; // Import the theme function
+import { getTheme, getAvailableThemes } from './Theme'; // Import the theme function
 
 const ThemeContext = createContext();
 
@@ -14,32 +14,48 @@ export const useTheme = () => {
 };
 
 export const AppThemeProvider = ({ children }) => {
+    const [currentMode, setCurrentMode] = useState(() => {
+        const storedMode = localStorage.getItem('themeMode');
+        return storedMode || 'light'; // Default mode
+    });
+
     const [currentThemeName, setCurrentThemeName] = useState(() => {
-        const storedTheme = localStorage.getItem('theme');
-        return storedTheme || 'light'; // Default theme
+        const storedTheme = localStorage.getItem('themeName');
+        return storedTheme || 'default'; // Default theme
     });
 
     useEffect(() => {
-        localStorage.setItem('theme', currentThemeName);
+        localStorage.setItem('themeMode', currentMode);
+    }, [currentMode]);
+
+    useEffect(() => {
+        localStorage.setItem('themeName', currentThemeName);
     }, [currentThemeName]);
+
+    const switchMode = (mode) => {
+        setCurrentMode(mode);
+    };
 
     const switchTheme = (themeName) => {
         setCurrentThemeName(themeName);
     };
 
     const getCurrentTheme = () => {
-        return getTheme(currentThemeName);
+        return getTheme(currentMode, currentThemeName);
     };
 
-    // Available themes
-    const availableThemes = ['light', 'dark']; // Define available themes here
-    const getAvailableThemes = () => availableThemes; // This function returns the list of available themes
+    // Available modes and themes
+    const availableModes = ['light', 'dark'];
+    const availableThemes = getAvailableThemes();
 
     const value = {
+        currentMode,
         currentThemeName,
+        switchMode,
         switchTheme,
         getCurrentTheme,
-        getAvailableThemes, // Add this to context
+        availableModes,
+        availableThemes,
     };
 
     return (

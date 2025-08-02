@@ -23,39 +23,86 @@ export const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !
         duration: theme.transitions.duration.enteringScreen,
       }),
       overflowY: 'auto',
-      backgroundColor: theme.palette.background.paper,
+      backgroundColor: theme.palette.mode === 'dark' 
+        ? theme.palette.background.default 
+        : theme.palette.background.paper,
       borderRight: `1px solid ${theme.palette.divider}`,
-      boxShadow: '4px 0 6px -1px rgba(0, 0, 0, 0.1)',
+      boxShadow: theme.palette.mode === 'dark'
+        ? '4px 0 6px -1px rgba(0, 0, 0, 0.3)'
+        : '4px 0 6px -1px rgba(0, 0, 0, 0.1)',
+      // Custom scrollbar styling
+      '&::-webkit-scrollbar': {
+        width: '6px',
+      },
+      '&::-webkit-scrollbar-track': {
+        background: 'transparent',
+      },
+      '&::-webkit-scrollbar-thumb': {
+        background: theme.palette.mode === 'dark' 
+          ? 'rgba(255, 255, 255, 0.2)' 
+          : 'rgba(0, 0, 0, 0.2)',
+        borderRadius: '3px',
+        '&:hover': {
+          background: theme.palette.mode === 'dark' 
+            ? 'rgba(255, 255, 255, 0.3)' 
+            : 'rgba(0, 0, 0, 0.3)',
+        },
+      },
+      // Firefox scrollbar styling
+      scrollbarWidth: 'thin',
+      scrollbarColor: theme.palette.mode === 'dark' 
+        ? 'rgba(255, 255, 255, 0.2) transparent' 
+        : 'rgba(0, 0, 0, 0.2) transparent',
     },
   })
 );
 
-export const StyledListItemButton = styled(ListItemButton)(({ theme, active }) => ({
-  borderRadius: '12px',
-  margin: '4px 12px',
-  paddingLeft: 16,
-  paddingRight: 16,
-  paddingTop: 12,
-  paddingBottom: 12,
-  '&:hover': {
-    backgroundColor: '#f1f5f9',
-    transform: 'translateX(4px)',
-    transition: 'all 0.2s ease',
-  },
-  ...(active && {
-    backgroundColor: '#e3f2fd',
-    color: theme.palette.primary.main,
-    fontWeight: 600,
+export const StyledListItemButton = styled(ListItemButton, { shouldForwardProp: (prop) => prop !== 'active' })(
+  ({ theme, active }) => ({
+    borderRadius: '12px',
+    margin: '4px 12px',
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
+    backgroundColor: 'transparent !important',
+    border: 'none',
+    color: theme.palette.text.primary,
     '&:hover': {
-      backgroundColor: '#e3f2fd',
+      backgroundColor: 'transparent !important',
+      transform: 'none',
+    },
+    '&:focus': {
+      backgroundColor: 'transparent !important',
+    },
+    '&:active': {
+      backgroundColor: 'transparent !important',
     },
     '& .MuiListItemIcon-root': {
-      color: theme.palette.primary.main,
+      color: theme.palette.text.primary,
     },
-  }),
-}));
+    '& .MuiListItemText-primary': {
+      color: theme.palette.text.primary,
+    },
+    ...(active === true && {
+      backgroundColor: `${theme.palette.primary.main}20 !important`,
+      color: theme.palette.text.primary,
+      fontWeight: 600,
+      border: `1px solid ${theme.palette.primary.main}`,
+      '&:hover': {
+        backgroundColor: `${theme.palette.primary.main}30 !important`,
+      },
+      '& .MuiListItemIcon-root': {
+        color: theme.palette.text.primary,
+      },
+      '& .MuiListItemText-primary': {
+        color: theme.palette.text.primary,
+      },
+    }),
+  })
+);
 
 export const StyledListItemIcon = styled(ListItemIcon)(({ theme }) => ({
   minWidth: 40,
-  color: theme.palette.sidebarText,
+  color: 'inherit',
 }));
