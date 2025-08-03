@@ -18,26 +18,8 @@ const PostsHeader = () => {
         textAlign: 'center',
       }}
     >
-      <Typography
-        variant="h4"
-        sx={{
-          fontWeight: 700,
-          color: theme.palette.text.primary,
-          mb: 1,
-        }}
-      >
+      <Typography variant="h4" component="h1">
         {t('posts')}
-      </Typography>
-      <Typography
-        variant="body1"
-        sx={{
-          color: theme.palette.text.secondary,
-          maxWidth: 600,
-          mx: 'auto',
-          lineHeight: 1.6,
-        }}
-      >
-        {t('postsDescription')}
       </Typography>
     </Box>
   );

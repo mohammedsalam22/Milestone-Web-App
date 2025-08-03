@@ -1,41 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Typography,
   Box,
-  Grid,
-  Card,
-  CardContent,
-  CardActions,
-  IconButton,
-  Button,
   CircularProgress,
   Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  DialogContentText,
-  TextField,
-  Chip,
-  useTheme,
-  Fade,
-  Grow,
 } from '@mui/material';
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  School as SchoolIcon,
-} from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { fetchSubjects, createSubject, updateSubject, deleteSubject } from '../../featuers/subjects-slice/subjectsSlice';
+import { fetchSections } from '../../featuers/sections-slice/sectionsSlice';
+import {
+  SubjectsHeader,
+  SubjectsTable,
+  EmptyState,
+  CreateSubjectDialog,
+  EditSubjectDialog,
+  DeleteConfirmationDialog,
+} from './components';
 
 const SubjectsPage = () => {
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
   const { subjects, loading, error } = useSelector((state) => state.subjects);
-  const theme = useTheme();
+  const { sections } = useSelector((state) => state.sections);
 
   const isRTL = i18n.language === 'ar';
 
@@ -45,23 +31,33 @@ const SubjectsPage = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState(null);
 
-  // Form state
-  const [formData, setFormData] = useState({ name: '' });
+  // Form state - updated to use grade_id
+  const [formData, setFormData] = useState({ name: '', grade_id: '', teacher: [] });
   const [formErrors, setFormErrors] = useState({});
+
+  // Filter and search states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [gradeFilter, setGradeFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('name');
 
   useEffect(() => {
     dispatch(fetchSubjects());
+    dispatch(fetchSections());
   }, [dispatch]);
 
   const handleCreateClick = () => {
-    setFormData({ name: '' });
+    setFormData({ name: '', grade_id: '', teacher: [] });
     setFormErrors({});
     setCreateDialogOpen(true);
   };
 
   const handleEditClick = (subject) => {
     setSelectedSubject(subject);
-    setFormData({ name: subject.name });
+    setFormData({ 
+      name: subject.name, 
+      grade_id: subject.grade_id || '', 
+      teacher: subject.teacher || [] 
+    });
     setFormErrors({});
     setEditDialogOpen(true);
   };
@@ -76,28 +72,29 @@ const SubjectsPage = () => {
     if (!formData.name.trim()) {
       errors.name = t('subjectNameRequired');
     }
+    if (!formData.grade_id) {
+      errors.grade_id = t('gradeRequired');
+    }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleCreateSubmit = async () => {
     if (!validateForm()) return;
-
     const resultAction = await dispatch(createSubject(formData));
     if (createSubject.fulfilled.match(resultAction)) {
       setCreateDialogOpen(false);
-      setFormData({ name: '' });
+      setFormData({ name: '', grade_id: '', teacher: [] });
     }
   };
 
   const handleEditSubmit = async () => {
     if (!validateForm()) return;
-
     const resultAction = await dispatch(updateSubject({ id: selectedSubject.id, data: formData }));
     if (updateSubject.fulfilled.match(resultAction)) {
       setEditDialogOpen(false);
       setSelectedSubject(null);
-      setFormData({ name: '' });
+      setFormData({ name: '', grade_id: '', teacher: [] });
     }
   };
 
@@ -116,6 +113,60 @@ const SubjectsPage = () => {
     }
   };
 
+  const getTeacherInitials = (teacherName) => {
+    return teacherName.split(' ').map(name => name[0]).join('').toUpperCase();
+  };
+
+  const getGradeColor = (grade) => {
+    const gradeColors = {
+      'KG1': 'primary', 'KG2': 'primary', 'KG3': 'primary',
+      '1': 'secondary', '2': 'secondary', '3': 'secondary', '4': 'secondary', '5': 'secondary',
+      '6': 'info', '7': 'info', '8': 'info',
+      '9': 'warning', '10': 'warning',
+      '11': 'error', '12': 'error',
+    };
+    return gradeColors[grade] || 'default';
+  };
+
+  // Helper function to get grade name from grade_id
+  const getGradeName = (gradeId) => {
+    const section = sections.find(s => s.id === gradeId);
+    return section ? section.name : `Grade ${gradeId}`;
+  };
+
+  // Helper function to get grade name for filtering
+  const getGradeNameForFilter = (subject) => {
+    return getGradeName(subject.grade_id);
+  };
+
+  const filteredAndSortedSubjects = subjects
+    .filter(subject => {
+      const gradeName = getGradeNameForFilter(subject);
+      const matchesSearch = subject.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           gradeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           subject.teacher?.some(teacher => 
+                             teacher.toLowerCase().includes(searchTerm.toLowerCase())
+                           );
+      const matchesGrade = gradeFilter === 'all' || gradeName === gradeFilter;
+      return matchesSearch && matchesGrade;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'name': return a.name.localeCompare(b.name);
+        case 'grade': return getGradeNameForFilter(a).localeCompare(getGradeNameForFilter(b));
+        case 'teachers': return (a.teacher?.length || 0) - (b.teacher?.length || 0);
+        default: return 0;
+      }
+    });
+
+  // Get unique grades for filter from sections
+  const uniqueGrades = [...new Set(sections.map(section => section.name))].sort();
+
+  const handleClearFilters = () => {
+    setSearchTerm('');
+    setGradeFilter('all');
+  };
+
   if (loading && subjects.length === 0) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
@@ -125,50 +176,19 @@ const SubjectsPage = () => {
   }
 
   return (
-    <Box sx={{
-      p: 3,
-      ...(isRTL && { direction: 'rtl', textAlign: 'right' })
-    }}>
-      {/* Header */}
-      <Box sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        mb: 4,
-        flexDirection: isRTL ? 'row-reverse' : 'row'
-      }}>
-        <Box>
-          <Typography variant="h4" component="h1" sx={{
-            fontWeight: 700,
-            ...(isRTL && { textAlign: 'right' }),
-            ...(!isRTL && { textAlign: 'left' })
-          }}>
-            {t('subjects')}
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-            {subjects.length} {subjects.length === 1 ? t('subject') : t('subjects')} {t('available')}
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={isRTL ? null : <AddIcon />}
-          endIcon={isRTL ? <AddIcon /> : null}
-          onClick={handleCreateClick}
-          sx={{
-            borderRadius: 2,
-            px: 3,
-            py: 1.5,
-            textTransform: 'none',
-            fontWeight: 600,
-            boxShadow: theme.shadows[4],
-            '&:hover': {
-              boxShadow: theme.shadows[8],
-            }
-          }}
-        >
-          {t('createSubject')}
-        </Button>
-      </Box>
+    <Box sx={{ p: 3, ...(isRTL && { direction: 'rtl', textAlign: 'right' }) }}>
+      {/* Header with Title and Filters */}
+      <SubjectsHeader
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        gradeFilter={gradeFilter}
+        setGradeFilter={setGradeFilter}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        uniqueGrades={uniqueGrades}
+        onCreateClick={handleCreateClick}
+        isRTL={isRTL}
+      />
 
       {/* Error Alert */}
       {error && (
@@ -177,255 +197,56 @@ const SubjectsPage = () => {
         </Alert>
       )}
 
-      {/* Subjects Grid */}
-      {subjects.length === 0 ? (
-        <Box sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          py: 8,
-          textAlign: 'center'
-        }}>
-          <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-          <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
-            {t('noSubjectsYet')}
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            {t('createYourFirstSubject')}
-          </Typography>
-          <Button
-            variant="outlined"
-            startIcon={isRTL ? null : <AddIcon />}
-            endIcon={isRTL ? <AddIcon /> : null}
-            onClick={handleCreateClick}
-            sx={{ borderRadius: 2 }}
-          >
-            {t('createSubject')}
-          </Button>
-        </Box>
+      {/* Subjects Table or Empty State */}
+      {filteredAndSortedSubjects.length === 0 ? (
+        <EmptyState
+          searchTerm={searchTerm}
+          gradeFilter={gradeFilter}
+          onCreateClick={handleCreateClick}
+          onClearFilters={handleClearFilters}
+          isRTL={isRTL}
+        />
       ) : (
-        <Grid container spacing={3}>
-          {subjects.map((subject, index) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={subject.id}>
-              <Grow in timeout={300 + index * 100}>
-                <Card
-                  elevation={2}
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    borderRadius: 3,
-                    transition: 'all 0.3s ease-in-out',
-                    cursor: 'pointer',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: theme.shadows[8],
-                      '& .MuiCardActions-root': {
-                        opacity: 1,
-                      }
-                    }
-                  }}
-                >
-                  <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                    <Box sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      mb: 2,
-                      flexDirection: isRTL ? 'row-reverse' : 'row'
-                    }}>
-                      <Chip
-                        label={`#${subject.id}`}
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                        sx={{ fontWeight: 600 }}
-                      />
-                      <SchoolIcon sx={{ 
-                        fontSize: 32, 
-                        color: theme.palette.primary.main,
-                        opacity: 0.8
-                      }} />
-                    </Box>
-                    <Typography variant="h6" sx={{ 
-                      fontWeight: 600,
-                      mb: 1,
-                      ...(isRTL && { textAlign: 'right' }),
-                      ...(!isRTL && { textAlign: 'left' })
-                    }}>
-                      {subject.name}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{
-                      ...(isRTL && { textAlign: 'right' }),
-                      ...(!isRTL && { textAlign: 'left' })
-                    }}>
-                      {t('subjectDescription')}
-                    </Typography>
-                  </CardContent>
-                  <CardActions sx={{
-                    p: 2,
-                    pt: 0,
-                    opacity: 0.7,
-                    transition: 'opacity 0.3s ease-in-out',
-                    justifyContent: 'space-between',
-                    flexDirection: isRTL ? 'row-reverse' : 'row'
-                  }}>
-                    <Box sx={{
-                      display: 'flex',
-                      gap: 1,
-                      flexDirection: isRTL ? 'row-reverse' : 'row'
-                    }}>
-                      <IconButton
-                        onClick={() => handleEditClick(subject)}
-                        color="primary"
-                        size="small"
-                        sx={{
-                          '&:hover': {
-                            backgroundColor: theme.palette.primary.light + '20',
-                            transform: 'scale(1.1)'
-                          },
-                          transition: 'all 0.2s ease-in-out'
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleDeleteClick(subject)}
-                        color="error"
-                        size="small"
-                        sx={{
-                          '&:hover': {
-                            backgroundColor: theme.palette.error.light + '20',
-                            transform: 'scale(1.1)'
-                          },
-                          transition: 'all 0.2s ease-in-out'
-                        }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                  </CardActions>
-                </Card>
-              </Grow>
-            </Grid>
-          ))}
-        </Grid>
+        <SubjectsTable
+          subjects={filteredAndSortedSubjects}
+          onEditClick={handleEditClick}
+          onDeleteClick={handleDeleteClick}
+          getGradeName={getGradeName}
+          getGradeColor={getGradeColor}
+          getTeacherInitials={getTeacherInitials}
+        />
       )}
 
-      {/* Create Subject Dialog */}
-      <Dialog open={createDialogOpen} onClose={() => setCreateDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ pb: 1 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            {t('createSubject')}
-          </Typography>
-        </DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label={t('subjectName')}
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={formData.name}
-            onChange={(e) => handleInputChange('name', e.target.value)}
-            error={!!formErrors.name}
-            helperText={formErrors.name}
-            sx={{ mt: 2, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-          />
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={() => setCreateDialogOpen(false)}
-            variant="outlined"
-            sx={{ borderRadius: 2 }}
-          >
-            {t('cancel')}
-          </Button>
-          <Button
-            onClick={handleCreateSubmit}
-            variant="contained"
-            disabled={loading}
-            sx={{ borderRadius: 2 }}
-          >
-            {loading ? t('creating') : t('create')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* Dialogs */}
+      <CreateSubjectDialog
+        open={createDialogOpen}
+        onClose={() => setCreateDialogOpen(false)}
+        formData={formData}
+        formErrors={formErrors}
+        sections={sections}
+        loading={loading}
+        onInputChange={handleInputChange}
+        onSubmit={handleCreateSubmit}
+      />
 
-      {/* Edit Subject Dialog */}
-      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ pb: 1 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            {t('editSubject')}
-          </Typography>
-        </DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label={t('subjectName')}
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={formData.name}
-            onChange={(e) => handleInputChange('name', e.target.value)}
-            error={!!formErrors.name}
-            helperText={formErrors.name}
-            sx={{ mt: 2, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
-          />
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={() => setEditDialogOpen(false)}
-            variant="outlined"
-            sx={{ borderRadius: 2 }}
-          >
-            {t('cancel')}
-          </Button>
-          <Button
-            onClick={handleEditSubmit}
-            variant="contained"
-            disabled={loading}
-            sx={{ borderRadius: 2 }}
-          >
-            {loading ? t('updating') : t('update')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <EditSubjectDialog
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        formData={formData}
+        formErrors={formErrors}
+        sections={sections}
+        loading={loading}
+        onInputChange={handleInputChange}
+        onSubmit={handleEditSubmit}
+      />
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ pb: 1 }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            {t('deleteSubject')}
-          </Typography>
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {t('deleteSubjectConfirmation')} "{selectedSubject?.name}"? {t('deleteConfirmationEnd')}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={() => setDeleteDialogOpen(false)}
-            variant="outlined"
-            sx={{ borderRadius: 2 }}
-          >
-            {t('cancel')}
-          </Button>
-          <Button
-            onClick={handleDeleteConfirm}
-            variant="contained"
-            color="error"
-            disabled={loading}
-            sx={{ borderRadius: 2 }}
-          >
-            {loading ? t('deleting') : t('delete')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DeleteConfirmationDialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        selectedSubject={selectedSubject}
+        loading={loading}
+        onConfirm={handleDeleteConfirm}
+      />
     </Box>
   );
 };

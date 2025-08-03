@@ -25,27 +25,9 @@ const SchoolStructureHeader = ({ onCreateStudyStage }) => {
       py: 3,
       px: 2,
     }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <AccountTreeIcon sx={{ 
-          fontSize: 40, 
-          color: theme.palette.primary.main 
-        }} />
-        <Box>
-          <Typography variant="h4" component="h1" sx={{ 
-            fontWeight: 700,
-            color: theme.palette.text.primary,
-            ...(isRTL && { textAlign: 'right' })
-          }}>
-            {t('schoolStructure')}
-          </Typography>
-          <Typography variant="body1" sx={{ 
-            color: theme.palette.text.secondary,
-            ...(isRTL && { textAlign: 'right' })
-          }}>
-            {t('manageSchoolHierarchy')}
-          </Typography>
-        </Box>
-      </Box>
+      <Typography variant="h4" component="h1">
+        {t('schoolStructure')}
+      </Typography>
       <Button
         variant="contained"
         startIcon={isRTL ? null : <AddIcon />}

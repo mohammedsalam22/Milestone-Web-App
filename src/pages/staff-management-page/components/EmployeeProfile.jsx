@@ -7,8 +7,6 @@ import {
   Chip,
   Button,
   Grid,
-  Card,
-  CardContent,
   Divider,
   CircularProgress,
   Alert,
@@ -18,6 +16,9 @@ import {
   DialogActions,
   DialogContentText,
   useTheme,
+  Container,
+  Stack,
+  Badge,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -30,6 +31,16 @@ import {
   AttachMoney as MoneyIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
+  Email as EmailIcon,
+  LocationOn as LocationIcon,
+  Work as WorkIcon,
+  Star as StarIcon,
+  Verified as VerifiedIcon,
+  Business as BusinessIcon,
+  ContactPhone as ContactPhoneIcon,
+  Home as HomeIcon,
+  Flag as FlagIcon,
+  Favorite as FavoriteIcon,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -94,394 +105,482 @@ const EmployeeProfile = () => {
     return colors[role] || 'default';
   };
 
+  const getRoleIcon = (role) => {
+    const icons = {
+      teacher: <SchoolIcon />,
+      admin: <BusinessIcon />,
+      cooperator: <WorkIcon />,
+      receptionist: <ContactPhoneIcon />,
+    };
+    return icons[role] || <PersonIcon />;
+  };
+
   if (loading && !selectedEmployee) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-        <CircularProgress />
+        <CircularProgress size={60} />
       </Box>
     );
   }
 
   if (error) {
     return (
-      <Box sx={{ 
-        p: 3,
-        ...(isRTL && { direction: 'rtl', textAlign: 'right' })
-      }}>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
         <Alert severity="error" sx={{ mb: 3 }}>
           {error}
         </Alert>
         <Button onClick={handleGoBack} variant="outlined" startIcon={<BackIcon />}>
           {t('back')}
         </Button>
-      </Box>
+      </Container>
     );
   }
 
   if (!selectedEmployee) {
     return (
-      <Box sx={{ 
-        p: 3,
-        ...(isRTL && { direction: 'rtl', textAlign: 'right' })
-      }}>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
         <Typography variant="h6" color="error">
           Employee not found
         </Typography>
         <Button onClick={handleGoBack} variant="outlined" startIcon={<BackIcon />} sx={{ mt: 2 }}>
           {t('back')}
         </Button>
-      </Box>
+      </Container>
     );
   }
 
   return (
     <Box sx={{ 
-      p: 3,
-      ...(isRTL && { direction: 'rtl', textAlign: 'right' })
+      minHeight: '100vh',
+      backgroundColor: theme.palette.background.default,
+      py: 4
     }}>
-      {/* Header with Back Button and Actions */}
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        mb: 3
-      }}>
+      <Container maxWidth="lg">
+        {/* Header with Back Button and Actions */}
         <Box sx={{ 
           display: 'flex', 
+          justifyContent: 'space-between', 
           alignItems: 'center', 
-          gap: 2,
-          flexDirection: isRTL ? 'row-reverse' : 'row'
+          mb: 4
         }}>
-          <Button
-            onClick={handleGoBack}
-            variant="outlined"
-            startIcon={<BackIcon />}
-            sx={{ borderRadius: 2 }}
-          >
-            {t('backToStaff')}
-          </Button>
-          <Typography variant="h4" component="h1" sx={{ 
-            fontWeight: 700,
-            ...(isRTL && { textAlign: 'right' }),
-            ...(!isRTL && { textAlign: 'left' })
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 2,
+            flexDirection: isRTL ? 'row-reverse' : 'row'
           }}>
-            {t('employeeProfile')}
-          </Typography>
+            <Button
+              onClick={handleGoBack}
+              variant="outlined"
+              startIcon={<BackIcon />}
+              sx={{ borderRadius: 2 }}
+            >
+              {t('backToStaff')}
+            </Button>
+          </Box>
+          
+          {/* Action Buttons */}
+          <Stack direction="row" spacing={2}>
+            <Button
+              onClick={handleEdit}
+              variant="contained"
+              startIcon={<EditIcon />}
+              sx={{ borderRadius: 2 }}
+            >
+              {t('edit')}
+            </Button>
+            <Button
+              onClick={handleDelete}
+              variant="outlined"
+              color="error"
+              startIcon={<DeleteIcon />}
+              sx={{ borderRadius: 2 }}
+            >
+              {t('delete')}
+            </Button>
+          </Stack>
         </Box>
-        
-        {/* Action Buttons */}
-        <Box sx={{ 
-          display: 'flex', 
-          gap: 2,
-          flexDirection: isRTL ? 'row-reverse' : 'row'
+
+        {/* Hero Section */}
+        <Box sx={{
+          backgroundColor: theme.palette.primary.main,
+          color: theme.palette.primary.contrastText,
+          p: 4,
+          borderRadius: 2,
+          mb: 4,
         }}>
-          <Button
-            onClick={handleEdit}
-            variant="outlined"
-            startIcon={<EditIcon />}
-            sx={{ borderRadius: 2 }}
-          >
-            {t('edit')}
-          </Button>
-          <Button
-            onClick={handleDelete}
-            variant="outlined"
-            color="error"
-            startIcon={<DeleteIcon />}
-            sx={{ borderRadius: 2 }}
-          >
-            {t('delete')}
-          </Button>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 4,
+            flexDirection: isRTL ? 'row-reverse' : 'row'
+          }}>
+            <Badge
+              overlap="circular"
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              badgeContent={
+                <Box sx={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: '50%',
+                  backgroundColor: theme.palette.success.main,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '2px solid white'
+                }}>
+                  <VerifiedIcon sx={{ fontSize: 10, color: 'white' }} />
+                </Box>
+              }
+            >
+              <Avatar 
+                sx={{ 
+                  width: 100, 
+                  height: 100, 
+                  fontSize: '2.5rem',
+                  fontWeight: 700,
+                  backgroundColor: theme.palette.secondary.main,
+                }}
+              >
+                {selectedEmployee.user.first_name.charAt(0)}
+              </Avatar>
+            </Badge>
+            
+            <Box>
+              <Typography variant="h3" sx={{ 
+                fontWeight: 700, 
+                mb: 1
+              }}>
+                {selectedEmployee.user.first_name} {selectedEmployee.user.last_name}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                <Chip
+                  icon={getRoleIcon(selectedEmployee.role)}
+                  label={t(selectedEmployee.role)}
+                  color={getRoleColor(selectedEmployee.role)}
+                  size="large"
+                  sx={{ 
+                    textTransform: 'capitalize', 
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                  }}
+                />
+                <Chip
+                  icon={<StarIcon />}
+                  label="Active"
+                  color="success"
+                  size="medium"
+                  sx={{ fontWeight: 600 }}
+                />
+              </Box>
+              <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 400, mb: 1 }}>
+                {selectedEmployee.user.username} • {selectedEmployee.user.phone}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <LocationIcon sx={{ fontSize: 16, opacity: 0.8 }} />
+                <Typography variant="body1" sx={{ opacity: 0.9, fontWeight: 400 }}>
+                  {selectedEmployee.address}
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
         </Box>
-      </Box>
 
-      <Grid container spacing={3}>
-        {/* Basic Information */}
-        <Grid item xs={12} md={6}>
-          <Card elevation={2} sx={{ borderRadius: 2, height: '100%' }}>
-            <CardContent>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 3, 
-                mb: 3,
-                flexDirection: isRTL ? 'row-reverse' : 'row'
-              }}>
-                <Avatar sx={{ width: 80, height: 80, bgcolor: theme.palette.primary.main, fontSize: '2rem' }}>
-                  {selectedEmployee.user.first_name.charAt(0)}
-                </Avatar>
-                <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
-                    {selectedEmployee.user.first_name} {selectedEmployee.user.last_name}
-                  </Typography>
-                  <Chip
-                    label={t(selectedEmployee.role)}
-                    color={getRoleColor(selectedEmployee.role)}
-                    size="medium"
-                    sx={{ textTransform: 'capitalize', fontWeight: 600 }}
-                  />
-                </Box>
-              </Box>
-              <Divider sx={{ my: 2 }} />
+        {/* Content Sections */}
+        <Grid container spacing={6}>
+          {/* Personal Details */}
+          <Grid item xs={12} lg={4}>
+            <Box sx={{ 
+              p: 4,
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: 2,
+              border: `1px solid ${theme.palette.divider}`,
+            }}>
               <Box sx={{ 
                 display: 'flex', 
                 alignItems: 'center', 
                 gap: 2, 
-                mb: 2,
+                mb: 4,
                 flexDirection: isRTL ? 'row-reverse' : 'row'
               }}>
-                <PersonIcon sx={{ fontSize: 24, color: 'text.secondary' }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('username')}
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {selectedEmployee.user.username}
-                  </Typography>
-                </Box>
+                <PersonIcon sx={{ fontSize: 28, color: theme.palette.primary.main }} />
+                <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                  {t('personalDetails')}
+                </Typography>
               </Box>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 2,
-                mb: 2,
-                flexDirection: isRTL ? 'row-reverse' : 'row'
-              }}>
-                <PhoneIcon sx={{ fontSize: 24, color: 'text.secondary' }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('phone')}
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {selectedEmployee.user.phone}
-                  </Typography>
+              
+              <Stack spacing={3}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 3,
+                  flexDirection: isRTL ? 'row-reverse' : 'row'
+                }}>
+                  <PersonIcon sx={{ color: theme.palette.text.secondary }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      {t('fatherName')}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
+                      {selectedEmployee.father_name}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 2,
-                mb: 2,
-                flexDirection: isRTL ? 'row-reverse' : 'row'
-              }}>
-                <PersonIcon sx={{ fontSize: 24, color: 'text.secondary' }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('nationalNo')}
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {selectedEmployee.national_no}
-                  </Typography>
+                
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 3,
+                  flexDirection: isRTL ? 'row-reverse' : 'row'
+                }}>
+                  <FavoriteIcon sx={{ color: theme.palette.text.secondary }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      {t('motherName')}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
+                      {selectedEmployee.mother_name}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 2,
-                flexDirection: isRTL ? 'row-reverse' : 'row'
-              }}>
-                <CalendarIcon sx={{ fontSize: 24, color: 'text.secondary' }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('birthDate')}
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {formatDate(selectedEmployee.birth_date)}
-                  </Typography>
+                
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 3,
+                  flexDirection: isRTL ? 'row-reverse' : 'row'
+                }}>
+                  <FlagIcon sx={{ color: theme.palette.text.secondary }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      {t('nationality')}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
+                      {selectedEmployee.nationality}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+                
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 3,
+                  flexDirection: isRTL ? 'row-reverse' : 'row'
+                }}>
+                  <PersonIcon sx={{ color: theme.palette.text.secondary }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      {t('gender')}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
+                      {t(selectedEmployee.gender)}
+                    </Typography>
+                  </Box>
+                </Box>
+                
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 3,
+                  flexDirection: isRTL ? 'row-reverse' : 'row'
+                }}>
+                  <HomeIcon sx={{ color: theme.palette.text.secondary }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      {t('familyStatus')}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
+                      {t(selectedEmployee.family_status)}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Stack>
+            </Box>
+          </Grid>
 
-        {/* Personal Information */}
-        <Grid item xs={12} md={6}>
-          <Card elevation={2} sx={{ borderRadius: 2, height: '100%' }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>
-                {t('personalDetails')}
-              </Typography>
+          {/* Work Details */}
+          <Grid item xs={12} lg={4}>
+            <Box sx={{ 
+              p: 4,
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: 2,
+              border: `1px solid ${theme.palette.divider}`,
+            }}>
               <Box sx={{ 
                 display: 'flex', 
                 alignItems: 'center', 
                 gap: 2, 
-                mb: 2,
+                mb: 4,
                 flexDirection: isRTL ? 'row-reverse' : 'row'
               }}>
-                <PersonIcon sx={{ fontSize: 24, color: 'text.secondary' }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('fatherName')}
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {selectedEmployee.father_name}
-                  </Typography>
-                </Box>
+                <WorkIcon sx={{ fontSize: 28, color: theme.palette.primary.main }} />
+                <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                  {t('workDetails')}
+                </Typography>
               </Box>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 2, 
-                mb: 2,
-                flexDirection: isRTL ? 'row-reverse' : 'row'
-              }}>
-                <PersonIcon sx={{ fontSize: 24, color: 'text.secondary' }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('motherName')}
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {selectedEmployee.mother_name}
-                  </Typography>
+              
+              <Stack spacing={3}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 3,
+                  flexDirection: isRTL ? 'row-reverse' : 'row'
+                }}>
+                  <AccessTimeIcon sx={{ color: theme.palette.text.secondary }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      {t('workingHours')}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
+                      {formatTime(selectedEmployee.day_start)} - {formatTime(selectedEmployee.day_end)}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 2, 
-                mb: 2,
-                flexDirection: isRTL ? 'row-reverse' : 'row'
-              }}>
-                <PersonIcon sx={{ fontSize: 24, color: 'text.secondary' }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('nationality')}
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {selectedEmployee.nationality}
-                  </Typography>
+                
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 3,
+                  flexDirection: isRTL ? 'row-reverse' : 'row'
+                }}>
+                  <MoneyIcon sx={{ color: theme.palette.text.secondary }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      {t('salary')}
+                    </Typography>
+                    <Typography variant="body1" sx={{ 
+                      fontWeight: 700, 
+                      mt: 0.5,
+                      color: theme.palette.success.main,
+                      fontSize: '1.2rem'
+                    }}>
+                      ${selectedEmployee.salary}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 2, 
-                mb: 2,
-                flexDirection: isRTL ? 'row-reverse' : 'row'
-              }}>
-                <PersonIcon sx={{ fontSize: 24, color: 'text.secondary' }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('gender')}
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {t(selectedEmployee.gender)}
-                  </Typography>
+                
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 3,
+                  flexDirection: isRTL ? 'row-reverse' : 'row'
+                }}>
+                  <CalendarIcon sx={{ color: theme.palette.text.secondary }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      {t('contractPeriod')}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
+                      {formatDate(selectedEmployee.contract_start)} - {formatDate(selectedEmployee.contract_end)}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 2,
-                flexDirection: isRTL ? 'row-reverse' : 'row'
-              }}>
-                <PersonIcon sx={{ fontSize: 24, color: 'text.secondary' }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('familyStatus')}
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {t(selectedEmployee.family_status)}
-                  </Typography>
+                
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 3,
+                  flexDirection: isRTL ? 'row-reverse' : 'row'
+                }}>
+                  <PersonIcon sx={{ color: theme.palette.text.secondary }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      {t('nationalNo')}
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
+                      {selectedEmployee.national_no}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+              </Stack>
+            </Box>
+          </Grid>
 
-        {/* Work Information */}
-        <Grid item xs={12} md={6}>
-          <Card elevation={2} sx={{ borderRadius: 2, height: '100%' }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>
-                {t('workDetails')}
-              </Typography>
+          {/* Contact Information */}
+          <Grid item xs={12} lg={4}>
+            <Box sx={{ 
+              p: 4,
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: 2,
+              border: `1px solid ${theme.palette.divider}`,
+            }}>
               <Box sx={{ 
                 display: 'flex', 
                 alignItems: 'center', 
                 gap: 2, 
-                mb: 3,
+                mb: 4,
                 flexDirection: isRTL ? 'row-reverse' : 'row'
               }}>
-                <AccessTimeIcon sx={{ fontSize: 24, color: 'text.secondary' }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('workingHours')}
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {formatTime(selectedEmployee.day_start)} - {formatTime(selectedEmployee.day_end)}
-                  </Typography>
-                </Box>
+                <ContactPhoneIcon sx={{ fontSize: 28, color: theme.palette.primary.main }} />
+                <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                  Contact Information
+                </Typography>
               </Box>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 2, 
-                mb: 3,
-                flexDirection: isRTL ? 'row-reverse' : 'row'
-              }}>
-                <MoneyIcon sx={{ fontSize: 24, color: 'text.secondary' }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('salary')}
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600, color: theme.palette.success.main }}>
-                    ${selectedEmployee.salary}
-                  </Typography>
+              
+              <Stack spacing={3}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 3,
+                  flexDirection: isRTL ? 'row-reverse' : 'row'
+                }}>
+                  <PhoneIcon sx={{ color: theme.palette.text.secondary }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      Phone
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
+                      {selectedEmployee.user.phone}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 2,
-                flexDirection: isRTL ? 'row-reverse' : 'row'
-              }}>
-                <CalendarIcon sx={{ fontSize: 24, color: 'text.secondary' }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('contractPeriod')}
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {formatDate(selectedEmployee.contract_start)} - {formatDate(selectedEmployee.contract_end)}
-                  </Typography>
+                
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 3,
+                  flexDirection: isRTL ? 'row-reverse' : 'row'
+                }}>
+                  <EmailIcon sx={{ color: theme.palette.text.secondary }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      Username
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
+                      {selectedEmployee.user.username}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+                
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 3,
+                  flexDirection: isRTL ? 'row-reverse' : 'row'
+                }}>
+                  <CalendarIcon sx={{ color: theme.palette.text.secondary }} />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                      Birth Date
+                    </Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, mt: 0.5 }}>
+                      {formatDate(selectedEmployee.birth_date)}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Stack>
+            </Box>
+          </Grid>
 
-        {/* Address Information */}
-        <Grid item xs={12} md={6}>
-          <Card elevation={2} sx={{ borderRadius: 2, height: '100%' }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>
-                {t('addressInformation')}
-              </Typography>
+          {/* Subjects */}
+          {selectedEmployee.subjects && selectedEmployee.subjects.length > 0 && (
+            <Grid item xs={12}>
               <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'flex-start', 
-                gap: 2,
-                flexDirection: isRTL ? 'row-reverse' : 'row'
+                p: 4,
+                backgroundColor: theme.palette.background.paper,
+                borderRadius: 2,
+                border: `1px solid ${theme.palette.divider}`,
               }}>
-                <PersonIcon sx={{ fontSize: 24, color: 'text.secondary', mt: 0.5 }} />
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {t('address')}
-                  </Typography>
-                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
-                    {selectedEmployee.address}
-                  </Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Subjects */}
-        {selectedEmployee.subjects && selectedEmployee.subjects.length > 0 && (
-          <Grid item xs={12}>
-            <Card elevation={2} sx={{ borderRadius: 2 }}>
-              <CardContent>
                 <Box sx={{ 
                   display: 'flex', 
                   alignItems: 'center', 
@@ -489,8 +588,8 @@ const EmployeeProfile = () => {
                   mb: 3,
                   flexDirection: isRTL ? 'row-reverse' : 'row'
                 }}>
-                  <SchoolIcon sx={{ fontSize: 28, color: 'text.secondary' }} />
-                  <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                  <SchoolIcon sx={{ fontSize: 28, color: theme.palette.primary.main }} />
+                  <Typography variant="h5" sx={{ fontWeight: 600 }}>
                     {t('subjects')}
                   </Typography>
                 </Box>
@@ -501,15 +600,20 @@ const EmployeeProfile = () => {
                       label={subject.name}
                       variant="outlined"
                       size="large"
-                      sx={{ fontWeight: 600 }}
+                      sx={{ 
+                        fontWeight: 600,
+                        fontSize: '1rem',
+                        py: 1,
+                        px: 2,
+                      }}
                     />
                   ))}
                 </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        )}
-      </Grid>
+              </Box>
+            </Grid>
+          )}
+        </Grid>
+      </Container>
 
       {/* Delete Confirmation Dialog */}
       <Dialog
@@ -517,6 +621,9 @@ const EmployeeProfile = () => {
         onClose={() => setShowDeleteDialog(false)}
         maxWidth="sm"
         fullWidth
+        PaperProps={{
+          sx: { borderRadius: 2 }
+        }}
       >
         <DialogTitle sx={{ pb: 1 }}>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
@@ -529,7 +636,7 @@ const EmployeeProfile = () => {
             {t('deleteConfirmationEnd')}
           </DialogContentText>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
+        <DialogActions sx={{ p: 3 }}>
           <Button 
             onClick={() => setShowDeleteDialog(false)} 
             variant="outlined"

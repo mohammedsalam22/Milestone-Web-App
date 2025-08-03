@@ -5,6 +5,7 @@ import { useTheme } from '@mui/material/styles';
 
 import {
   fetchAllSchedules,
+  fetchGrades,
   createSchedule,
   updateSchedule,
   deleteSchedule,
@@ -24,7 +25,7 @@ const Schedule = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   
-  const { grades, selectedGrade, selectedGradeSchedules, loading, error, allSchedules } = useSelector(
+  const { grades, selectedGrade, selectedGradeSchedules, loading, gradesLoading, error, allSchedules } = useSelector(
     (state) => state.schedule
   );
 
@@ -36,8 +37,9 @@ const Schedule = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [scheduleToDelete, setScheduleToDelete] = useState(null);
 
-  // Fetch all schedules on component mount
+  // Fetch grades and schedules on component mount
   useEffect(() => {
+    dispatch(fetchGrades());
     dispatch(fetchAllSchedules());
   }, [dispatch]);
 
@@ -48,6 +50,7 @@ const Schedule = () => {
   };
 
   const handleRefresh = () => {
+    dispatch(fetchGrades());
     dispatch(fetchAllSchedules());
   };
 
@@ -159,24 +162,15 @@ const Schedule = () => {
         flexWrap: 'wrap',
         gap: 2
       }}>
-        <Box>
-          <Typography variant="h4" component="h1" sx={{ 
-            fontWeight: 600, 
-            color: theme.palette.text.primary,
-            mb: 0.5
-          }}>
-            Schedule Management
-          </Typography>
-          <Typography variant="body2" color="textSecondary">
-            Manage and view class schedules for different grades
-          </Typography>
-        </Box>
+        <Typography variant="h4" component="h1">
+          Schedule
+        </Typography>
         
         <GradeSelector
           grades={grades}
           selectedGrade={selectedGrade}
           onGradeChange={handleGradeChange}
-          loading={loading}
+          loading={gradesLoading}
         />
       </Box>
 
@@ -194,13 +188,13 @@ const Schedule = () => {
 
       {/* Main Content */}
       {selectedGrade && (
-                 <Box sx={{ 
-           backgroundColor: theme.palette.background.paper,
-           borderRadius: 3,
-           boxShadow: theme.shadows[1],
-           overflow: 'hidden',
-           border: `1px solid ${theme.palette.divider}`
-         }}>
+        <Box sx={{ 
+          backgroundColor: theme.palette.background.paper,
+          borderRadius: 3,
+          boxShadow: theme.shadows[1],
+          overflow: 'hidden',
+          border: `1px solid ${theme.palette.divider}`
+        }}>
           <ScheduleHeader
             selectedGrade={selectedGrade}
             onSave={handleSave}
@@ -228,7 +222,7 @@ const Schedule = () => {
       )}
 
       {/* Empty States */}
-      {!selectedGrade && grades?.length > 0 && (
+      {!selectedGrade && grades?.length > 0 && !gradesLoading && (
         <Box sx={{ 
           mt: 6, 
           textAlign: 'center',
@@ -247,7 +241,7 @@ const Schedule = () => {
         </Box>
       )}
 
-      {!grades?.length && !loading && (
+      {!grades?.length && !gradesLoading && !loading && (
         <Box sx={{ 
           mt: 6, 
           textAlign: 'center',
@@ -258,10 +252,10 @@ const Schedule = () => {
           border: `1px solid ${theme.palette.divider}`
         }}>
           <Typography variant="h5" color="textSecondary" gutterBottom sx={{ fontWeight: 500 }}>
-            No Data Available
+            No Grades Available
           </Typography>
           <Typography variant="body1" color="textSecondary" sx={{ opacity: 0.8 }}>
-            No grades are currently available. Please check your API connection.
+            No grades are currently available. Please check your API connection or create grades first.
           </Typography>
         </Box>
       )}

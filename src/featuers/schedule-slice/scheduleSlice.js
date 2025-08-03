@@ -4,9 +4,9 @@ import {
   createScheduleApi,
   updateScheduleApi,
   deleteScheduleApi,
-  extractGradesFromSchedules,
   filterSchedulesByGrade,
 } from '../../api/schedule';
+import { getGradesApi } from '../../api/grades';
 
 const initialState = {
   allSchedules: [],
@@ -14,6 +14,7 @@ const initialState = {
   selectedGrade: null,
   selectedGradeSchedules: [],
   loading: false,
+  gradesLoading: false,
   error: null,
 };
 
@@ -66,6 +67,18 @@ export const deleteSchedule = createAsyncThunk(
   }
 );
 
+export const fetchGrades = createAsyncThunk(
+  'schedule/fetchGrades',
+  async (_, { rejectWithValue }) => {
+    try {
+      const data = await getGradesApi();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch grades');
+    }
+  }
+);
+
 const scheduleSlice = createSlice({
   name: 'schedule',
   initialState,
@@ -97,19 +110,29 @@ const scheduleSlice = createSlice({
       .addCase(fetchAllSchedules.fulfilled, (state, action) => {
         state.loading = false;
         state.allSchedules = action.payload;
-        // Extract grades from schedules
-        const extractedGrades = extractGradesFromSchedules(action.payload);
-        state.grades = extractedGrades;
         // If a grade is selected, update its schedules
         if (state.selectedGrade) {
           const filteredSchedules = filterSchedulesByGrade(action.payload, state.selectedGrade.id);
           state.selectedGradeSchedules = filteredSchedules;
         }
       })
-              .addCase(fetchAllSchedules.rejected, (state, action) => {
-          state.loading = false;
-          state.error = action.payload;
-        })
+      .addCase(fetchAllSchedules.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Fetch grades
+      .addCase(fetchGrades.pending, (state) => {
+        state.gradesLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchGrades.fulfilled, (state, action) => {
+        state.gradesLoading = false;
+        state.grades = action.payload;
+      })
+      .addCase(fetchGrades.rejected, (state, action) => {
+        state.gradesLoading = false;
+        state.error = action.payload;
+      })
         // Create schedule
         .addCase(createSchedule.pending, (state) => {
           state.loading = true;
@@ -125,6 +148,12 @@ const scheduleSlice = createSlice({
             if (newSchedule.section.grade.id === state.selectedGrade.id) {
               state.selectedGradeSchedules.push(newSchedule);
             }
+          }
+          // Add the grade to grades list if it doesn't exist
+          const newSchedule = action.payload;
+          const gradeExists = state.grades.some(grade => grade.id === newSchedule.section.grade.id);
+          if (!gradeExists) {
+            state.grades.push(newSchedule.section.grade);
           }
         })
         .addCase(createSchedule.rejected, (state, action) => {

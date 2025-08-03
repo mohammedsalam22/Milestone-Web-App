@@ -9,17 +9,20 @@ import {
 } from '@mui/material';
 import {
   Dashboard as LayoutDashboardIcon,
-  People as UsersIcon,
-  Book as BookOpenIcon,
-  CalendarMonth as CalendarIcon,
+  Group as UsersIcon,
+  School as BookOpenIcon,
+  Schedule as CalendarIcon,
   Settings as SettingsIcon,
-  School as GraduationCapIcon,
-  BarChart as BarChart3Icon,
-  VerifiedUser as UserCheckIcon,
-  Subject as SubjectIcon,
-  Event as EventIcon,
+  Class as GraduationCapIcon,
+  Assessment as BarChart3Icon,
+  Badge as UserCheckIcon,
+  MenuBook as SubjectIcon,
+  EventNote as EventIcon,
   AccountTree as AccountTreeIcon,
-  Article as ArticleIcon
+  Forum as ArticleIcon,
+  Assignment as AssignmentIcon,
+  PersonAdd as PersonAddIcon,
+  Quiz as QuizIcon,
 } from '@mui/icons-material';
 import { useTheme } from '../../../theme/ThemeProvider';
 import { useLocation, Link } from 'react-router-dom';
@@ -44,13 +47,13 @@ const Sidebar = ({ isCollapsed }) => {
     { name: 'dashboard', icon: LayoutDashboardIcon, href: '/dashboard' },
     { name: 'students', icon: UsersIcon, href: '/students' },
     { name: 'staff', icon: UserCheckIcon, href: '/staff' },
-    { name: 'courses', icon: BookOpenIcon, href: '/courses' },
     { name: 'subjects', icon: SubjectIcon, href: '/subjects' },
     { name: 'studyYears', icon: EventIcon, href: '/study-years' },
     { name: 'schoolStructure', icon: AccountTreeIcon, href: '/school-structure' },
-    { name: 'classes', icon: GraduationCapIcon, href: '/classes' },
     { name: 'posts', icon: ArticleIcon, href: '/posts' },
     { name: 'schedule', icon: CalendarIcon, href: '/schedule' },
+    { name: 'placementDates', icon: AssignmentIcon, href: '/placement-dates' },
+    { name: 'studentRegistration', icon: QuizIcon, href: '/placement-tests' },
     { name: 'reports', icon: BarChart3Icon, href: '/reports' },
     { name: 'settings', icon: SettingsIcon, href: '/settings' },
   ];
@@ -58,11 +61,11 @@ const Sidebar = ({ isCollapsed }) => {
   // Role-based navigation
   let filteredNavigation = navigation;
   if (role === 'teacher') {
-    filteredNavigation = navigation.filter(item => ['students', 'courses', 'subjects', 'studyYears', 'schoolStructure', 'settings'].includes(item.name));
+    filteredNavigation = navigation.filter(item => ['students', 'subjects', 'studyYears', 'schoolStructure', 'placementDates', 'studentRegistration', 'settings'].includes(item.name));
   } else if (role === 'cooperator') {
-    filteredNavigation = navigation.filter(item => ['students', 'staff', 'schedule', 'schoolStructure', 'settings'].includes(item.name));
+    filteredNavigation = navigation.filter(item => ['students', 'staff', 'schedule', 'schoolStructure', 'placementDates', 'studentRegistration', 'settings'].includes(item.name));
   } else if (role === 'receptionist') {
-    filteredNavigation = navigation.filter(item => ['students', 'staff', 'reports', 'schoolStructure', 'settings'].includes(item.name));
+    filteredNavigation = navigation.filter(item => ['students', 'staff', 'reports', 'schoolStructure', 'placementDates', 'studentRegistration', 'settings'].includes(item.name));
   } // admin gets all
 
   return (
@@ -86,7 +89,7 @@ const Sidebar = ({ isCollapsed }) => {
               backgroundColor: theme.palette.primary.main,
               borderRadius: '12px',
               p: 1,
-              ...(isRTL(i18n.language) ? { ml: isCollapsed ? 0 : 2 } : { mr: isCollapsed ? 0 : 2 }),
+              mr: isCollapsed ? 0 : 2,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

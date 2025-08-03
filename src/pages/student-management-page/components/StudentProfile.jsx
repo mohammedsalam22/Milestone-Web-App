@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -8,17 +8,19 @@ import {
   Alert,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { fetchStudentById } from '../../../featuers/students-slice/studentsSlice';
+import { fetchStudentById, deleteStudent } from '../../../featuers/students-slice/studentsSlice';
 import Student from '../../../models/Student';
 import StudentProfileHeader from './StudentProfileHeader';
 import AcademicPersonalInfo from './AcademicPersonalInfo';
 import ParentsInfo from './ParentsInfo';
+import StudentForm from '../../student-form-page/StudentForm';
 
 const StudentProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const theme = useTheme();
+  const [isEditing, setIsEditing] = useState(false);
   
   const { selectedStudent, loading, error } = useSelector((state) => state.students);
 
@@ -29,7 +31,24 @@ const StudentProfile = () => {
   }, [dispatch, id]);
 
   const handleBack = () => {
-    navigate('/students');
+    if (isEditing) {
+      setIsEditing(false);
+    } else {
+      navigate('/students');
+    }
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleDelete = async () => {
+    try {
+      await dispatch(deleteStudent(id)).unwrap();
+      navigate('/students');
+    } catch (error) {
+      console.error('Failed to delete student:', error);
+    }
   };
 
   if (loading) {
@@ -68,9 +87,28 @@ const StudentProfile = () => {
 
   const student = new Student(selectedStudent);
 
+  if (isEditing) {
+    return (
+      <StudentForm 
+        isEditing={true} 
+        studentData={selectedStudent} 
+        onCancel={() => setIsEditing(false)}
+        onSuccess={() => {
+          setIsEditing(false);
+          dispatch(fetchStudentById(id));
+        }}
+      />
+    );
+  }
+
   return (
     <Box sx={{ backgroundColor: theme.palette.background.default, minHeight: '100vh' }}>
-      <StudentProfileHeader student={student} onBack={handleBack} />
+      <StudentProfileHeader 
+        student={student} 
+        onBack={handleBack} 
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
       
       {/* Main Content - Simple Padding */}
       <Box sx={{ p: 1 }}>

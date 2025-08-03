@@ -9,6 +9,12 @@ import gradesSlice from "../featuers/grades-slice/gradesSlice";
 import sectionsSlice from "../featuers/sections-slice/sectionsSlice";
 import postsSlice from "../featuers/posts-slice/postsSlice";
 import scheduleSlice from "../featuers/schedule-slice/scheduleSlice";
+import placementDatesSlice from "../featuers/placement-dates-slice/placementDatesSlice";
+import placementTestsSlice from "../featuers/placement-tests-slice/placementTestsSlice";
+import programsSlice from "../featuers/programs-slice/programsSlice";
+import activitiesSlice from "../featuers/activities-slice/activitiesSlice";
+import visitDatesSlice from "../featuers/visit-dates-slice/visitDatesSlice";
+import visitsSlice from "../featuers/visits-slice/visitsSlice";
 
 // Configure the store
 const store = configureStore({
@@ -23,6 +29,12 @@ const store = configureStore({
     sections: sectionsSlice,
     posts: postsSlice,
     schedule: scheduleSlice,
+    placementDates: placementDatesSlice,
+    placementTests: placementTestsSlice,
+    programs: programsSlice,
+    activities: activitiesSlice,
+    visitDates: visitDatesSlice,
+    visits: visitsSlice,
   },
 });
 

@@ -45,8 +45,6 @@ const Students = () => {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGrade, setSelectedGrade] = useState('');
-  const [selectedGender, setSelectedGender] = useState('');
-  const [selectedRegistrationStatus, setSelectedRegistrationStatus] = useState('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -56,23 +54,18 @@ const Students = () => {
 
   // Get unique grades for filter
   const grades = [...new Set(students.map(student => student.section?.grade?.name).filter(Boolean))];
-  const genders = ['male', 'female'];
 
   // Filter students based on search term and filters
   const filteredStudents = students.filter(student => {
     const studentModel = new Student(student);
     const fullName = studentModel.getFullName().toLowerCase();
     const grade = student.section?.grade?.name || '';
-    const gender = student.card?.gender?.toLowerCase() || '';
-    const isRegistered = student.register_date ? 'registered' : 'unregistered';
 
     const matchesSearch = fullName.includes(searchTerm.toLowerCase()) ||
                          student.card?.birth_city?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesGrade = !selectedGrade || grade === selectedGrade;
-    const matchesGender = !selectedGender || gender === selectedGender.toLowerCase();
-    const matchesRegistrationStatus = !selectedRegistrationStatus || isRegistered === selectedRegistrationStatus;
 
-    return matchesSearch && matchesGrade && matchesGender && matchesRegistrationStatus;
+    return matchesSearch && matchesGrade;
   });
 
   // Pagination
@@ -100,26 +93,14 @@ const Students = () => {
     setPage(0);
   };
 
-  const handleGenderChange = (event) => {
-    setSelectedGender(event.target.value);
-    setPage(0);
-  };
-
-  const handleRegistrationStatusChange = (event) => {
-    setSelectedRegistrationStatus(event.target.value);
-    setPage(0);
-  };
-
   const clearFilters = () => {
     setSearchTerm('');
     setSelectedGrade('');
-    setSelectedGender('');
-    setSelectedRegistrationStatus('');
     setPage(0);
   };
 
   const getGenderIcon = (gender) => {
-    return gender?.toLowerCase() === 'male' ? <Male color="primary" /> : <Female color="secondary" />;
+    return gender?.toLowerCase() === 'male' ? <Male /> : <Female />;
   };
 
   const getGenderColor = (gender) => {
@@ -152,28 +133,22 @@ const Students = () => {
       backgroundColor: theme.palette.background.default,
       minHeight: '100vh',
     }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      {/* Header with Title and Filters */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h4" component="h1">
           Student Management
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<Add />}
-          onClick={() => navigate('/students/create')}
-        >
-          Add Student
-        </Button>
-      </Box>
-
-             {/* Search and Filters */}
-       <Paper elevation={1} sx={{ p: 3, mb: 3, backgroundColor: 'transparent' }}>
+        
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
           <TextField
             placeholder="Search by name or birth city..."
             value={searchTerm}
             onChange={handleSearchChange}
-            sx={{ minWidth: 300 }}
+            size="small"
+            sx={{ 
+              minWidth: 250,
+              '& .MuiOutlinedInput-root': { borderRadius: 2 }
+            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -183,14 +158,15 @@ const Students = () => {
             }}
           />
           
-          <FormControl sx={{ minWidth: 150 }}>
-            <InputLabel>Grade</InputLabel>
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel>Section</InputLabel>
             <Select
               value={selectedGrade}
-              label="Grade"
+              label="Section"
               onChange={handleGradeChange}
+              sx={{ borderRadius: 2 }}
             >
-              <MenuItem value="">All Grades</MenuItem>
+              <MenuItem value="">All Sections</MenuItem>
               {grades.map((grade) => (
                 <MenuItem key={grade} value={grade}>
                   {grade}
@@ -198,88 +174,51 @@ const Students = () => {
               ))}
             </Select>
           </FormControl>
-          
-                     <FormControl sx={{ minWidth: 150 }}>
-             <InputLabel>Gender</InputLabel>
-             <Select
-               value={selectedGender}
-               label="Gender"
-               onChange={handleGenderChange}
-             >
-               <MenuItem value="">All Genders</MenuItem>
-               {genders.map((gender) => (
-                 <MenuItem key={gender} value={gender}>
-                   {gender.charAt(0).toUpperCase() + gender.slice(1)}
-                 </MenuItem>
-               ))}
-             </Select>
-           </FormControl>
 
-           <FormControl sx={{ minWidth: 150 }}>
-             <InputLabel>Registration Status</InputLabel>
-             <Select
-               value={selectedRegistrationStatus}
-               label="Registration Status"
-               onChange={handleRegistrationStatusChange}
-             >
-               <MenuItem value="">All Students</MenuItem>
-               <MenuItem value="registered">Registered</MenuItem>
-               <MenuItem value="unregistered">Unregistered</MenuItem>
-             </Select>
-           </FormControl>
-
-           {(searchTerm || selectedGrade || selectedGender || selectedRegistrationStatus) && (
+          {(searchTerm || selectedGrade) && (
             <Button
               variant="outlined"
               color="secondary"
               onClick={clearFilters}
               size="small"
+              sx={{ borderRadius: 2 }}
             >
               Clear Filters
             </Button>
           )}
+          
+          <Button 
+            variant="contained" 
+            startIcon={<Add />} 
+            onClick={() => navigate('/students/create')}
+            sx={{ borderRadius: 2 }}
+          >
+            Add Student
+          </Button>
         </Box>
+      </Box>
 
-        {/* Active Filters */}
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 2 }}>
-          {searchTerm && (
-            <Chip
-              label={`Search: ${searchTerm}`}
-              onDelete={() => setSearchTerm('')}
-              color="primary"
-              variant="outlined"
-              size="small"
-            />
-          )}
-          {selectedGrade && (
-            <Chip
-              label={`Grade: ${selectedGrade}`}
-              onDelete={() => setSelectedGrade('')}
-              color="primary"
-              variant="outlined"
-              size="small"
-            />
-          )}
-                     {selectedGender && (
-             <Chip
-               label={`Gender: ${selectedGender}`}
-               onDelete={() => setSelectedGender('')}
-               color="primary"
-               variant="outlined"
-               size="small"
-             />
-           )}
-           {selectedRegistrationStatus && (
-             <Chip
-               label={`Status: ${selectedRegistrationStatus.charAt(0).toUpperCase() + selectedRegistrationStatus.slice(1)}`}
-               onDelete={() => setSelectedRegistrationStatus('')}
-               color="primary"
-               variant="outlined"
-               size="small"
-             />
-           )}
-        </Box>
-      </Paper>
+      {/* Active Filters */}
+      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 }}>
+        {searchTerm && (
+          <Chip
+            label={`Search: ${searchTerm}`}
+            onDelete={() => setSearchTerm('')}
+            color="primary"
+            variant="outlined"
+            size="small"
+          />
+        )}
+        {selectedGrade && (
+          <Chip
+            label={`Section: ${selectedGrade}`}
+            onDelete={() => setSelectedGrade('')}
+            color="primary"
+            variant="outlined"
+            size="small"
+          />
+        )}
+      </Box>
 
       {/* Error Display */}
       {error && (
@@ -350,48 +289,28 @@ const Students = () => {
                       <TableCell>
                         <Chip
                           icon={getGenderIcon(student.card?.gender)}
-                          label={studentModel.getFormattedGender()}
+                          label={student.card?.gender || 'N/A'}
                           color={getGenderColor(student.card?.gender)}
                           size="small"
-                          variant="outlined"
                         />
                       </TableCell>
+                      <TableCell>{formatDate(student.card?.birth_date)}</TableCell>
+                      <TableCell>{student.card?.birth_city || 'N/A'}</TableCell>
                       <TableCell>
-                        <Typography variant="body2">
-                          {formatDate(student.card?.birth_date)}
-                        </Typography>
+                        {student.section?.grade?.name && student.section?.name 
+                          ? `${student.section.grade.name} - Section ${student.section.name}`
+                          : 'N/A'
+                        }
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {student.card?.birth_city || 'N/A'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" fontWeight="medium">
-                          {student.section?.grade?.name || 'N/A'}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Section {student.section?.name || 'N/A'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2">
-                          {studentModel.getAge() || 'N/A'} years
-                        </Typography>
-                      </TableCell>
+                      <TableCell>{studentModel.getAge()}</TableCell>
                     </TableRow>
                   );
                 })
               ) : (
                 <TableRow>
                   <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
-                    <Typography variant="h6" color="text.secondary" gutterBottom>
+                    <Typography variant="body1" color="text.secondary">
                       No students found
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {searchTerm || selectedGrade || selectedGender
-                        ? 'Try adjusting your search criteria or filters.'
-                        : 'No students are currently registered.'}
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -400,9 +319,8 @@ const Students = () => {
           </Table>
         </TableContainer>
         
-        {/* Pagination */}
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25, 50]}
+          rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={filteredStudents.length}
           rowsPerPage={rowsPerPage}

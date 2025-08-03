@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getStudentsApi, getStudentByIdApi, createStudentApi, updateStudentApi, deleteStudentApi } from '../../api/students';
+import { getStudentsApi, getStudentByIdApi, createStudentApi, createStudentDirectApi, updateStudentApi, deleteStudentApi } from '../../api/students';
 
 // Async thunk for fetching all students
 export const fetchStudents = createAsyncThunk(
@@ -37,6 +37,21 @@ export const createStudent = createAsyncThunk(
   async (studentData, { rejectWithValue }) => {
     try {
       const data = await createStudentApi(studentData);
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.detail || 'Failed to create student.'
+      );
+    }
+  }
+);
+
+// Async thunk for creating student with direct store
+export const createStudentDirect = createAsyncThunk(
+  'students/createStudentDirect',
+  async (studentData, { rejectWithValue }) => {
+    try {
+      const data = await createStudentDirectApi(studentData);
       return data;
     } catch (error) {
       return rejectWithValue(
@@ -135,6 +150,20 @@ const studentsSlice = createSlice({
         state.students.push(action.payload);
       })
       .addCase(createStudent.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to create student.';
+      })
+      // Create student direct
+      .addCase(createStudentDirect.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createStudentDirect.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.students.push(action.payload);
+      })
+      .addCase(createStudentDirect.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to create student.';
       })

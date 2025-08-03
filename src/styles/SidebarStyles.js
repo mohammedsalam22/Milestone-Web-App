@@ -26,10 +26,18 @@ export const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !
       backgroundColor: theme.palette.mode === 'dark' 
         ? theme.palette.background.default 
         : theme.palette.background.paper,
-      borderRight: `1px solid ${theme.palette.divider}`,
-      boxShadow: theme.palette.mode === 'dark'
-        ? '4px 0 6px -1px rgba(0, 0, 0, 0.3)'
-        : '4px 0 6px -1px rgba(0, 0, 0, 0.1)',
+      ...(anchor === 'left' && { borderRight: `1px solid ${theme.palette.divider}` }),
+      ...(anchor === 'right' && { borderLeft: `1px solid ${theme.palette.divider}` }),
+      ...(anchor === 'left' && {
+        boxShadow: theme.palette.mode === 'dark'
+          ? '4px 0 6px -1px rgba(0, 0, 0, 0.3)'
+          : '4px 0 6px -1px rgba(0, 0, 0, 0.1)',
+      }),
+      ...(anchor === 'right' && {
+        boxShadow: theme.palette.mode === 'dark'
+          ? '-4px 0 6px -1px rgba(0, 0, 0, 0.3)'
+          : '-4px 0 6px -1px rgba(0, 0, 0, 0.1)',
+      }),
       // Custom scrollbar styling
       '&::-webkit-scrollbar': {
         width: '6px',
@@ -60,11 +68,11 @@ export const StyledDrawer = styled(Drawer, { shouldForwardProp: (prop) => prop !
 export const StyledListItemButton = styled(ListItemButton, { shouldForwardProp: (prop) => prop !== 'active' })(
   ({ theme, active }) => ({
     borderRadius: '12px',
-    margin: '4px 12px',
+    margin: '2px 12px',
     paddingLeft: 16,
     paddingRight: 16,
-    paddingTop: 12,
-    paddingBottom: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
     backgroundColor: 'transparent !important',
     border: 'none',
     color: theme.palette.text.primary,
@@ -83,6 +91,10 @@ export const StyledListItemButton = styled(ListItemButton, { shouldForwardProp: 
     },
     '& .MuiListItemText-primary': {
       color: theme.palette.text.primary,
+    },
+    // First item styling - reduced top margin
+    '&:first-of-type': {
+      marginTop: '0px',
     },
     ...(active === true && {
       backgroundColor: `${theme.palette.primary.main}20 !important`,

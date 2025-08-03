@@ -15,6 +15,11 @@ export const createStudentApi = async (data) => {
   return response.data;
 };
 
+export const createStudentDirectApi = async (data) => {
+  const response = await apiService.post('/api/users/students/direct-store', data);
+  return response.data;
+};
+
 export const updateStudentApi = async (id, data) => {
   const response = await apiService.patch(`/api/users/students/${id}`, data);
   return response.data;

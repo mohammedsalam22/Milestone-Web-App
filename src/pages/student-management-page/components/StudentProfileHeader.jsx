@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -6,6 +6,12 @@ import {
   Avatar,
   Chip,
   IconButton,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  DialogContentText,
 } from '@mui/material';
 import {
   ArrowBack,
@@ -15,11 +21,14 @@ import {
   Phone,
   CalendarToday,
   LocationOn,
+  Edit,
+  Delete,
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 
-const StudentProfileHeader = ({ student, onBack }) => {
+const StudentProfileHeader = ({ student, onBack, onEdit, onDelete }) => {
   const theme = useTheme();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const getGenderIcon = (gender) => {
     return gender?.toLowerCase() === 'male' ? <Person /> : <Person />;
@@ -56,13 +65,44 @@ const StudentProfileHeader = ({ student, onBack }) => {
           </Typography>
         </Box>
         
-        <Chip
-          icon={getGenderIcon(student.card?.gender)}
-          label={student.getFormattedGender()}
-          color={getGenderColor(student.card?.gender)}
-          size="small"
-          sx={{ fontWeight: 500 }}
-        />
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Button
+            variant="outlined"
+            startIcon={<Edit />}
+            onClick={onEdit}
+            sx={{
+              borderRadius: 2,
+              px: 3,
+              py: 1,
+              fontSize: '14px',
+              fontWeight: 500,
+            }}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            startIcon={<Delete />}
+            onClick={() => setShowDeleteDialog(true)}
+            sx={{
+              borderRadius: 2,
+              px: 3,
+              py: 1,
+              fontSize: '14px',
+              fontWeight: 500,
+            }}
+          >
+            Delete
+          </Button>
+          <Chip
+            icon={getGenderIcon(student.card?.gender)}
+            label={student.getFormattedGender()}
+            color={getGenderColor(student.card?.gender)}
+            size="small"
+            sx={{ fontWeight: 500 }}
+          />
+        </Box>
       </Box>
 
       {/* Student Profile Header */}
@@ -155,6 +195,56 @@ const StudentProfileHeader = ({ student, onBack }) => {
           </Grid>
         </Grid>
       </Box>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 3 }
+        }}
+      >
+        <DialogTitle sx={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 2,
+          fontWeight: 600
+        }}>
+          <Delete color="error" />
+          Confirm Student Deletion
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            Are you sure you want to delete <strong>{student.getFullName()}</strong>? 
+            This action cannot be undone and will permanently remove all student data.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button 
+            onClick={() => setShowDeleteDialog(false)}
+            sx={{ borderRadius: 2, px: 3 }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={() => {
+              setShowDeleteDialog(false);
+              onDelete();
+            }}
+            variant="contained" 
+            color="error"
+            sx={{ 
+              borderRadius: 2, 
+              px: 3,
+              fontWeight: 600
+            }}
+          >
+            Delete Student
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

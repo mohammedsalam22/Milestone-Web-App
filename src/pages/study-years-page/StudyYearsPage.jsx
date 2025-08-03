@@ -136,18 +136,9 @@ const StudyYearsPage = () => {
         mb: 4,
         flexDirection: isRTL ? 'row-reverse' : 'row'
       }}>
-        <Box>
-          <Typography variant="h4" component="h1" sx={{
-            fontWeight: 700,
-            ...(isRTL && { textAlign: 'right' }),
-            ...(!isRTL && { textAlign: 'left' })
-          }}>
-            {t('studyYears')}
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-            {studyYears.length} {studyYears.length === 1 ? t('studyYear') : t('studyYears')} {t('available')}
-          </Typography>
-        </Box>
+        <Typography variant="h4" component="h1">
+          {t('studyYears')}
+        </Typography>
         <Button
           variant="contained"
           startIcon={isRTL ? null : <AddIcon />}
