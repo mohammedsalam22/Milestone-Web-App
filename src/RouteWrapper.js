@@ -23,6 +23,8 @@ import PlacementTestProfile from './pages/placement-tests-page/PlacementTestProf
 import SchoolProgramsPage from './pages/school-programs-page/SchoolProgramsPage';
 import SchoolActivitiesPage from './pages/school-activities-page/SchoolActivitiesPage';
 import ParentsVisitsPage from './pages/parents-visits-page/ParentsVisitsPage';
+import IncidentsPage from './pages/incidents-page/IncidentsPage';
+import AttendancesPage from './pages/attendance-page/AttendancesPage';
 
 const RouteWrapper = () => {
   return (
@@ -49,6 +51,8 @@ const RouteWrapper = () => {
         <Route path="/school-programs" element={<SchoolProgramsPage />} />
         <Route path="/school-activities" element={<SchoolActivitiesPage />} />
         <Route path="/parents-visits" element={<ParentsVisitsPage />} />
+        <Route path="/incidents" element={<IncidentsPage />} />
+        <Route path="/attendances" element={<AttendancesPage />} />
     </Routes>
   );
 };

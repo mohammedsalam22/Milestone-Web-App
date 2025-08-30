@@ -84,21 +84,35 @@ const CreateEditDialog = ({
         )}
         
         {dialogType === 'section' && (
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>{t('grade')}</InputLabel>
-            <Select
-              value={formData.grade_id}
-              onChange={(e) => onInputChange('grade_id', e.target.value)}
-              error={!!formErrors.grade_id}
-              label={t('grade')}
-            >
-              {grades.map((grade) => (
-                <MenuItem key={grade.id} value={grade.id}>
-                  {grade.name} - {grade.study_stage.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>{t('grade')}</InputLabel>
+              <Select
+                value={formData.grade_id}
+                onChange={(e) => onInputChange('grade_id', e.target.value)}
+                error={!!formErrors.grade_id}
+                label={t('grade')}
+              >
+                {grades.map((grade) => (
+                  <MenuItem key={grade.id} value={grade.id}>
+                    {grade.name} - {grade.study_stage.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <TextField
+              fullWidth
+              type="number"
+              label={t('limit')}
+              value={formData.limit}
+              onChange={(e) => onInputChange('limit', e.target.value)}
+              error={!!formErrors.limit}
+              helperText={formErrors.limit || t('maximumStudentsInSection')}
+              sx={{ mb: 2 }}
+              inputProps={{ min: 1 }}
+            />
+          </>
         )}
       </DialogContent>
       <DialogActions>

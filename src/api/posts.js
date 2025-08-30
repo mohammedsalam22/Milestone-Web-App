@@ -62,7 +62,7 @@ export const postsAPI = {
   deletePost: (id) => apiService.delete(`${POSTS_ENDPOINT}/${id}`),
 
   getFileUrl: (filePath) => {
-    return `http://127.0.0.1:8000//storage/${filePath}`;
+    return `http://10.218.65.81:8000/storage/${filePath}`;
   },
 
   addComment: (commentData) => {

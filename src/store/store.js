@@ -15,6 +15,8 @@ import programsSlice from "../featuers/programs-slice/programsSlice";
 import activitiesSlice from "../featuers/activities-slice/activitiesSlice";
 import visitDatesSlice from "../featuers/visit-dates-slice/visitDatesSlice";
 import visitsSlice from "../featuers/visits-slice/visitsSlice";
+import incidentsSlice from "../featuers/incidents-slice/incidentsSlice";
+import attendancesSlice from "../featuers/attendances-slice/attendancesSlice";
 
 // Configure the store
 const store = configureStore({
@@ -33,8 +35,10 @@ const store = configureStore({
     placementTests: placementTestsSlice,
     programs: programsSlice,
     activities: activitiesSlice,
-    visitDates: visitDatesSlice,
-    visits: visitsSlice,
+            visitDates: visitDatesSlice,
+        visits: visitsSlice,
+        incidents: incidentsSlice,
+        attendances: attendancesSlice,
   },
 });
 

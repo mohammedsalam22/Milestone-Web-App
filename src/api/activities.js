@@ -63,11 +63,11 @@ export const activitiesAPI = {
   deleteActivity: (id) => apiService.delete(`${ACTIVITIES_ENDPOINT}/${id}`),
 
   getImageUrl: (imagePath) => {
-    return `http://127.0.0.1:8000/storage/${imagePath}`;
+    return `http://10.218.65.81:8000/storage/${imagePath}`;
   },
 
   getVideoUrl: (videoPath) => {
-    return `http://127.0.0.1:8000/storage/${videoPath}`;
+    return `http://10.218.65.81:8000/storage/${videoPath}`;
   },
 };
 

@@ -80,6 +80,7 @@ const SchoolStructurePage = () => {
     study_stage_id: '',
     study_year_id: '',
     grade_id: '',
+    limit: '',
   });
   const [formErrors, setFormErrors] = useState({});
 
@@ -111,6 +112,7 @@ const SchoolStructurePage = () => {
         study_stage_id: item.study_stage?.id || '',
         study_year_id: item.study_year?.id || '',
         grade_id: item.grade?.id || '',
+        limit: item.limit?.toString() || '',
       });
     } else {
       setFormData({
@@ -118,6 +120,7 @@ const SchoolStructurePage = () => {
         study_stage_id: stageId || '',
         study_year_id: '',
         grade_id: gradeId || '',
+        limit: '',
       });
     }
     
@@ -131,7 +134,10 @@ const SchoolStructurePage = () => {
       study_stage_id: '',
       study_year_id: '',
       grade_id: '',
+      limit: '',
     });
+        console.log("Form data set in handleOpenDialog:", formData); // Log here
+
     setFormErrors({});
   };
 
@@ -158,8 +164,19 @@ const SchoolStructurePage = () => {
       }
     }
     
-    if (dialogType === 'section' && !formData.grade_id) {
-      errors.grade_id = t('gradeRequired');
+    if (dialogType === 'section') {
+      if (!formData.grade_id) {
+        errors.grade_id = t('gradeRequired');
+      }
+
+      if (!formData.limit && formData.limit !== 0) {
+        errors.limit = t('limitRequired');
+      } else {
+        const numericLimit = parseInt(formData.limit, 10);
+        if (Number.isNaN(numericLimit) || numericLimit <= 0) {
+          errors.limit = t('limitPositive');
+        }
+      }
     }
     
     setFormErrors(errors);
@@ -180,28 +197,34 @@ const SchoolStructurePage = () => {
         if (dialogMode === 'create') {
           await dispatch(createGrade({
             name: formData.name,
-            study_stage: formData.study_stage_id,
-            study_year: formData.study_year_id,
+            study_stage_id: formData.study_stage_id,
+            study_year_id: formData.study_year_id,
           })).unwrap();
         } else {
           await dispatch(updateGrade({
             id: selectedItem.id,
-            name: formData.name,
-            study_stage: formData.study_stage_id,
-            study_year: formData.study_year_id,
+            gradeData: {
+              name: formData.name,
+              study_stage_id: formData.study_stage_id,
+              study_year_id: formData.study_year_id,
+            },
           })).unwrap();
         }
       } else if (dialogType === 'section') {
         if (dialogMode === 'create') {
           await dispatch(createSection({
             name: formData.name,
-            grade: formData.grade_id,
+            grade_id: formData.grade_id,
+            limit: parseInt(formData.limit, 10),
           })).unwrap();
         } else {
           await dispatch(updateSection({
             id: selectedItem.id,
-            name: formData.name,
-            grade: formData.grade_id,
+            sectionData: {
+              name: formData.name,
+              grade_id: formData.grade_id,
+              limit: parseInt(formData.limit, 10),
+            },
           })).unwrap();
         }
       }

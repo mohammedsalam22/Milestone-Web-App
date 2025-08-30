@@ -49,7 +49,7 @@ export const programsAPI = {
   deleteProgram: (id) => apiService.delete(`${PROGRAMS_ENDPOINT}/${id}`),
 
   getImageUrl: (imagePath) => {
-    return `http://127.0.0.1:8000/storage/${imagePath}`;
+    return `http://10.218.65.81:8000/storage/${imagePath}`;
   },
 };
 
