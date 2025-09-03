@@ -99,7 +99,7 @@ const AttendancesHeader = ({
             '&:hover': { boxShadow: theme.shadows[8] }
           }}
         >
-          {t('createAttendance')}
+          {t('dailyAttendance')}
         </Button>
       </Box>
     </Box>

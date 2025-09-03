@@ -19,13 +19,18 @@ export const getAttendanceByIdApi = async (id) => {
   return response.data;
 };
 
+export const createDailyAttendanceApi = async (attendances) => {
+  const response = await apiService.post('/api/school/attendances/', attendances);
+  return response.data;
+};
+
 export const createAttendanceApi = async (data) => {
-  const response = await apiService.post('/api/school/attendances', data);
+  const response = await apiService.post('/api/school/attendances/', data);
   return response.data;
 };
 
 export const updateAttendanceApi = async (id, data) => {
-  const response = await apiService.patch(`/api/school/attendances/${id}`, data);
+  const response = await apiService.patch(`/api/school/attendances/${id}/`, data);
   return response.data;
 };
 

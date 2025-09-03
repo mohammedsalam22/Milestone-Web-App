@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { 
   getAttendancesApi, 
   getAttendanceByIdApi, 
-  createAttendanceApi, 
+  createAttendanceApi,
+  createDailyAttendanceApi,
   updateAttendanceApi, 
   deleteAttendanceApi 
 } from '../../api/attendances';
@@ -16,7 +17,7 @@ export const fetchAttendances = createAsyncThunk(
       return data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.detail || 'Failed to fetch attendances data.'
+        error.response?.data?.detail || 'Failed to fetch absence records.'
       );
     }
   }
@@ -30,7 +31,21 @@ export const fetchAttendanceById = createAsyncThunk(
       return data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.detail || 'Failed to fetch attendance data.'
+        error.response?.data?.detail || 'Failed to fetch absence record.'
+      );
+    }
+  }
+);
+
+export const createDailyAttendance = createAsyncThunk(
+  'attendances/createDailyAttendance',
+  async (attendancesData, { rejectWithValue }) => {
+    try {
+      const data = await createDailyAttendanceApi(attendancesData);
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.detail || 'Failed to create daily absence records.'
       );
     }
   }
@@ -44,7 +59,7 @@ export const createAttendance = createAsyncThunk(
       return data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.detail || 'Failed to create attendance.'
+        error.response?.data?.detail || 'Failed to create absence record.'
       );
     }
   }
@@ -58,7 +73,7 @@ export const updateAttendance = createAsyncThunk(
       return { id, data: response };
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.detail || 'Failed to update attendance.'
+        error.response?.data?.detail || 'Failed to update absence record.'
       );
     }
   }
@@ -72,7 +87,7 @@ export const deleteAttendance = createAsyncThunk(
       return id;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.detail || 'Failed to delete attendance.'
+        error.response?.data?.detail || 'Failed to delete absence record.'
       );
     }
   }
@@ -134,6 +149,24 @@ const attendancesSlice = createSlice({
         state.selectedAttendance = action.payload;
       })
       .addCase(fetchAttendanceById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Create daily attendance
+      .addCase(createDailyAttendance.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createDailyAttendance.fulfilled, (state, action) => {
+        state.loading = false;
+        // Add all new attendances to the state
+        if (Array.isArray(action.payload)) {
+          state.attendances.push(...action.payload);
+        } else {
+          state.attendances.push(action.payload);
+        }
+      })
+      .addCase(createDailyAttendance.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
