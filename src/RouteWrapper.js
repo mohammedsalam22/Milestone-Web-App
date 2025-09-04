@@ -26,6 +26,7 @@ import ParentsVisitsPage from './pages/parents-visits-page/ParentsVisitsPage';
 import IncidentsPage from './pages/incidents-page/IncidentsPage';
 import AttendancesPage from './pages/attendance-page/AttendancesPage';
 import DailyAttendancePage from './pages/attendance-page/DailyAttendancePage';
+import MarksPage from './pages/marks-page/MarksPage';
 
 const RouteWrapper = () => {
   return (
@@ -55,6 +56,7 @@ const RouteWrapper = () => {
         <Route path="/incidents" element={<IncidentsPage />} />
         <Route path="/attendances" element={<AttendancesPage />} />
         <Route path="/daily-attendance" element={<DailyAttendancePage />} />
+        <Route path="/marks" element={<MarksPage />} />
     </Routes>
   );
 };

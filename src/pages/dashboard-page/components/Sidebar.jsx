@@ -25,6 +25,7 @@ import {
   Quiz as QuizIcon,
   Report as ReportIcon,
   CheckCircle as CheckCircleIcon,
+  Grade as GradeIcon,
 } from '@mui/icons-material';
 import { useTheme } from '../../../theme/ThemeProvider';
 import { useLocation, Link } from 'react-router-dom';
@@ -54,6 +55,7 @@ const Sidebar = ({ isCollapsed }) => {
     { name: 'schoolStructure', icon: AccountTreeIcon, href: '/school-structure' },
     { name: 'posts', icon: ArticleIcon, href: '/posts' },
     { name: 'schedule', icon: CalendarIcon, href: '/schedule' },
+    { name: 'marks', icon: GradeIcon, href: '/marks' },
     { name: 'incidents', icon: ReportIcon, href: '/incidents' },
     { name: 'attendances', icon: CheckCircleIcon, href: '/attendances' },
     { name: 'placementDates', icon: AssignmentIcon, href: '/placement-dates' },
@@ -65,11 +67,11 @@ const Sidebar = ({ isCollapsed }) => {
   // Role-based navigation
   let filteredNavigation = navigation;
   if (role === 'teacher') {
-    filteredNavigation = navigation.filter(item => ['students', 'subjects', 'studyYears', 'schoolStructure', 'incidents', 'attendances', 'placementDates', 'studentRegistration', 'settings'].includes(item.name));
+    filteredNavigation = navigation.filter(item => ['students', 'subjects', 'studyYears', 'schoolStructure', 'marks', 'incidents', 'attendances', 'placementDates', 'studentRegistration', 'settings'].includes(item.name));
   } else if (role === 'cooperator') {
-    filteredNavigation = navigation.filter(item => ['students', 'staff', 'schedule', 'schoolStructure', 'incidents', 'attendances', 'placementDates', 'studentRegistration', 'settings'].includes(item.name));
+    filteredNavigation = navigation.filter(item => ['students', 'staff', 'schedule', 'schoolStructure', 'marks', 'incidents', 'attendances', 'placementDates', 'studentRegistration', 'settings'].includes(item.name));
   } else if (role === 'receptionist') {
-    filteredNavigation = navigation.filter(item => ['students', 'staff', 'reports', 'schoolStructure', 'incidents', 'attendances', 'placementDates', 'studentRegistration', 'settings'].includes(item.name));
+    filteredNavigation = navigation.filter(item => ['students', 'staff', 'reports', 'schoolStructure', 'marks', 'incidents', 'attendances', 'placementDates', 'studentRegistration', 'settings'].includes(item.name));
   } // admin gets all
 
   return (
