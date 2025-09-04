@@ -20,6 +20,12 @@ export const updateSectionApi = async (id, data) => {
   return response.data;
 };
 
+// Filtered sections by grade
+export const getSectionsByGradeApi = async (gradeId) => {
+  const response = await apiService.get(`/api/school/sections?grade=${gradeId}`);
+  return response.data;
+};
+
 export const deleteSectionApi = async (id) => {
   await apiService.delete(`/api/school/sections/${id}`);
 }; 

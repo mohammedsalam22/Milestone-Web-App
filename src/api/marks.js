@@ -41,18 +41,11 @@ export const updateMarkApi = async (id, data) => {
   return response.data;
 };
 
-export const deleteMarkApi = async (id) => {
-  await apiService.delete(`/api/school/marks/${id}`);
-};
 
 // Get students by section (already exists but we'll add it here for convenience)
-export const getStudentsBySectionApi = async (sectionId) => {
-  const response = await apiService.get(`/api/users/students?section=${sectionId}`);
-  return response.data;
-};
-
-// Get sections by grade (already exists but we'll add it here for convenience)
-export const getSectionsByGradeApi = async (gradeId) => {
-  const response = await apiService.get(`/api/school/sections?grade=${gradeId}`);
-  return response.data;
-};
+// Note: moved utility endpoints to their original modules:
+// - students: src/api/students.js
+// - sections: src/api/sections.js
+// - subjects: src/api/subjects.js
+// - grades: src/api/grades.js
+// - study stages: src/api/studyStages.js

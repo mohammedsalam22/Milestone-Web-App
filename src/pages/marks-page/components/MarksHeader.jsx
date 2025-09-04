@@ -12,7 +12,7 @@ import {
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
-const MarksHeader = ({ onCreateClick, onClearFilters, isAddMode = false, isSearchValid = false }) => {
+const MarksHeader = ({ onCreateClick, onClearFilters, isAddMode = false, isSearchValid = false, disabled = false }) => {
   const { t } = useTranslation();
   const theme = useTheme();
 
@@ -24,9 +24,9 @@ const MarksHeader = ({ onCreateClick, onClearFilters, isAddMode = false, isSearc
         alignItems: 'center',
         mb: 3,
         p: 2,
-        backgroundColor: theme.palette.background.paper,
-        borderRadius: 2,
-        boxShadow: 1,
+        backgroundColor: 'transparent',
+        borderRadius: 0,
+        boxShadow: 'none',
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -75,7 +75,7 @@ const MarksHeader = ({ onCreateClick, onClearFilters, isAddMode = false, isSearc
             variant="contained"
             startIcon={<AddIcon />}
             onClick={onCreateClick}
-            disabled={!isSearchValid}
+            disabled={!isSearchValid || disabled}
             sx={{
               backgroundColor: theme.palette.primary.main,
               '&:hover': {

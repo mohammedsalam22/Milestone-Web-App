@@ -20,6 +20,12 @@ export const updateGradeApi = async (id, data) => {
   return response.data;
 };
 
+// Filtered grades by study stage
+export const getGradesByStudyStageApi = async (studyStageId) => {
+  const response = await apiService.get(`/api/school/grades?study_stage=${studyStageId}`);
+  return response.data;
+};
+
 export const deleteGradeApi = async (id) => {
   await apiService.delete(`/api/school/grades/${id}`);
 }; 

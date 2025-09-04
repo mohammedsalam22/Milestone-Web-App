@@ -10,6 +10,12 @@ export const getSubjectByIdApi = async (id) => {
   return response.data;
 };
 
+// Filtered subjects by grade
+export const getSubjectsByGradeApi = async (gradeId) => {
+  const response = await apiService.get(`/api/school/subjects?grade=${gradeId}`);
+  return response.data;
+};
+
 export const createSubjectApi = async (data) => {
   const response = await apiService.post('/api/school/subjects', data);
   return response.data;

@@ -12,10 +12,16 @@ import {
   fetchMarks, 
   fetchStudentsBySection, 
   fetchSectionsByGrade,
+  fetchSubjectsByGrade,
+  fetchStudyStages,
+  fetchGradesByStudyStage,
   setSelectedFilters,
   clearFilters,
   clearStudentsBySection,
   clearSectionsByGrade,
+  clearSubjectsByGrade,
+  clearGradesByStudyStage,
+  clearStudyStages,
   createMarks,
   updateMark,
 } from '../../featuers/marks-slice/marksSlice';
@@ -23,8 +29,8 @@ import {
   MarksHeader,
   MarksTable,
   MarksFilters,
+  SchoolStructureFilters,
   EmptyState,
-  DeleteConfirmationDialog,
   EditMarkDialog,
 } from './components';
 
@@ -34,14 +40,21 @@ const MarksPage = () => {
   const { i18n, t } = useTranslation();
   
   // Redux selectors
-  const { marks, studentsBySection, sectionsByGrade, loading, error } = useSelector((state) => state.marks);
+  const { 
+    marks, 
+    studentsBySection, 
+    sectionsByGrade, 
+    subjectsByGrade,
+    studyStages,
+    gradesByStudyStage,
+    loading, 
+    error 
+  } = useSelector((state) => state.marks);
   const { user } = useSelector((state) => state.login);
   
   const isRTL = i18n.language === 'ar';
 
   // Dialog states
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedMark, setSelectedMark] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState(null);
@@ -59,7 +72,14 @@ const MarksPage = () => {
     grade: '',
     section: '',
     mark_type: '',
+    study_stage: '',
   });
+
+  // Determine user role and flow
+  const isTeacher = user?.role === 'teacher';
+  const isCooperator = user?.role === 'cooperator';
+  const isAdmin = user?.role === 'admin';
+  const isReadOnly = !!isAdmin;
 
   // Available mark types
   const markTypes = ['exam 1', 'exam 2', 'exam 3', 'exam 4'];
@@ -90,41 +110,82 @@ const MarksPage = () => {
     setLocalSelectedFilters(newFilters);
     dispatch(setSelectedFilters(newFilters));
 
-    // Clear dependent filters
-    if (filterName === 'subject') {
-      // Automatically set the grade for the selected subject
-      const selectedSubject = teacherSubjects.find(s => s.id === parseInt(value));
-      if (selectedSubject) {
-        newFilters.grade = selectedSubject.grade.id;
+    if (isTeacher) {
+      // Teacher flow - cascading filters based on their subjects
+      if (filterName === 'subject') {
+        // Automatically set the grade for the selected subject
+        const selectedSubject = teacherSubjects.find(s => s.id === parseInt(value));
+        if (selectedSubject) {
+          newFilters.grade = selectedSubject.grade.id;
+          newFilters.section = '';
+          setLocalSelectedFilters(newFilters);
+          dispatch(setSelectedFilters(newFilters));
+          dispatch(clearStudentsBySection());
+          
+          // Fetch sections for the automatically selected grade
+          dispatch(fetchSectionsByGrade(selectedSubject.grade.id));
+        } else {
+          newFilters.grade = '';
+          newFilters.section = '';
+          setLocalSelectedFilters(newFilters);
+          dispatch(setSelectedFilters(newFilters));
+          dispatch(clearSectionsByGrade());
+          dispatch(clearStudentsBySection());
+        }
+      } else if (filterName === 'grade') {
         newFilters.section = '';
         setLocalSelectedFilters(newFilters);
         dispatch(setSelectedFilters(newFilters));
         dispatch(clearStudentsBySection());
         
-        // Fetch sections for the automatically selected grade
-        dispatch(fetchSectionsByGrade(selectedSubject.grade.id));
-      } else {
+        // Fetch sections for the selected grade
+        if (value) {
+          dispatch(fetchSectionsByGrade(value));
+        }
+      } else if (filterName === 'section') {
+        // Fetch students for the selected section
+        if (value) {
+          dispatch(fetchStudentsBySection(value));
+        }
+      }
+    } else if (isCooperator || isAdmin) {
+      // Cooperator flow - school structure hierarchy
+      if (filterName === 'study_stage') {
+        // Clear all dependent filters
         newFilters.grade = '';
         newFilters.section = '';
+        newFilters.subject = '';
+        setLocalSelectedFilters(newFilters);
+        dispatch(setSelectedFilters(newFilters));
+        dispatch(clearGradesByStudyStage());
+        dispatch(clearSectionsByGrade());
+        dispatch(clearSubjectsByGrade());
+        dispatch(clearStudentsBySection());
+        
+        // Fetch grades for the selected study stage
+        if (value) {
+          dispatch(fetchGradesByStudyStage(value));
+        }
+      } else if (filterName === 'grade') {
+        // Clear dependent filters
+        newFilters.section = '';
+        newFilters.subject = '';
         setLocalSelectedFilters(newFilters);
         dispatch(setSelectedFilters(newFilters));
         dispatch(clearSectionsByGrade());
+        dispatch(clearSubjectsByGrade());
         dispatch(clearStudentsBySection());
-      }
-    } else if (filterName === 'grade') {
-      newFilters.section = '';
-      setLocalSelectedFilters(newFilters);
-      dispatch(setSelectedFilters(newFilters));
-      dispatch(clearStudentsBySection());
-      
-      // Fetch sections for the selected grade
-      if (value) {
-        dispatch(fetchSectionsByGrade(value));
-      }
-    } else if (filterName === 'section') {
-      // Fetch students for the selected section
-      if (value) {
-        dispatch(fetchStudentsBySection(value));
+        
+        // Fetch sections and subjects for the selected grade
+        if (value) {
+          dispatch(fetchSectionsByGrade(value));
+          dispatch(fetchSubjectsByGrade(value));
+        }
+      } else if (filterName === 'section') {
+        // Fetch students for the selected section
+        if (value) {
+          dispatch(fetchStudentsBySection(value));
+        }
       }
     }
   };
@@ -148,11 +209,17 @@ const MarksPage = () => {
       grade: '',
       section: '',
       mark_type: '',
+      study_stage: '',
     };
     setLocalSelectedFilters(clearedFilters);
     dispatch(clearFilters());
     dispatch(clearStudentsBySection());
     dispatch(clearSectionsByGrade());
+    if (isCooperator) {
+      dispatch(clearSubjectsByGrade());
+      dispatch(clearGradesByStudyStage());
+      dispatch(clearStudyStages());
+    }
   };
 
   // Handle create new mark
@@ -219,6 +286,8 @@ const MarksPage = () => {
   };
 
   // Handle edit mark
+  const [selectedMark, setSelectedMark] = useState(null);
+  
   const handleEditClick = (row) => {
     // Find the actual mark data from the marks array
     const studentFullName = `${row.student.card.first_name} ${row.student.card.last_name}`;
@@ -254,19 +323,6 @@ const MarksPage = () => {
     }
   };
 
-  // Handle delete mark
-  const handleDeleteClick = (mark) => {
-    setSelectedMark(mark);
-    setDeleteDialogOpen(true);
-  };
-
-  // Handle delete confirmation
-  const handleDeleteConfirm = async () => {
-    // TODO: Implement delete functionality
-    setDeleteDialogOpen(false);
-    setSelectedMark(null);
-  };
-
   // Handle close edit dialog
   const handleCloseEditDialog = () => {
     setEditDialogOpen(false);
@@ -282,6 +338,23 @@ const MarksPage = () => {
   // Check if search is valid
   const isSearchValid = selectedFilters.subject && selectedFilters.mark_type && selectedFilters.section;
 
+  // Load study stages for cooperators on component mount
+  React.useEffect(() => {
+    if ((isCooperator || isAdmin) && studyStages.length === 0) {
+      dispatch(fetchStudyStages());
+    }
+  }, [isCooperator, isAdmin, studyStages.length, dispatch]);
+
+  // Get subject name based on user role
+  const getSubjectName = () => {
+    if (isTeacher) {
+      return teacherSubjects.find(s => s.id === parseInt(selectedFilters.subject))?.name || '';
+    } else if (isCooperator) {
+      return subjectsByGrade.find(s => s.id === parseInt(selectedFilters.subject))?.name || '';
+    }
+    return '';
+  };
+
   // Combine marks and students data
   const combinedData = useMemo(() => {
     if (!studentsBySection.length) {
@@ -293,7 +366,7 @@ const MarksPage = () => {
         student,
         mark: 0,
         mark_type: selectedFilters.mark_type,
-        subject_name: teacherSubjects.find(s => s.id === parseInt(selectedFilters.subject))?.name || '',
+        subject_name: getSubjectName(),
         top_mark: 100,
         pass_mark: 60,
         date: new Date().toISOString().split('T')[0],
@@ -310,14 +383,14 @@ const MarksPage = () => {
         student,
         mark: existingMark ? existingMark.mark : 0,
         mark_type: selectedFilters.mark_type,
-        subject_name: teacherSubjects.find(s => s.id === parseInt(selectedFilters.subject))?.name || '',
+        subject_name: getSubjectName(),
         top_mark: existingMark ? existingMark.top_mark : 100,
         pass_mark: existingMark ? existingMark.pass_mark : 60,
         date: existingMark ? existingMark.date : new Date().toISOString().split('T')[0],
         markId: existingMark ? existingMark.id : null,
       };
     });
-  }, [studentsBySection, marks, selectedFilters, teacherSubjects]);
+  }, [studentsBySection, marks, selectedFilters, teacherSubjects, subjectsByGrade, isTeacher, isCooperator]);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -326,7 +399,15 @@ const MarksPage = () => {
         onClearFilters={handleClearFilters}
         isAddMode={isAddMode}
         isSearchValid={isSearchValid}
+        disabled={isReadOnly}
       />
+
+      {/* Instructions under header */}
+      <Alert severity="info" sx={{ mb: 2 }}>
+        <strong>{t('Instructions')}:</strong> {isTeacher 
+          ? t('Select a subject (grade will be automatically set), then choose a section and exam type to view student marks. Students without marks will show a mark of 0.')
+          : t('Select a study stage, then choose a grade, section, subject, and exam type to view student marks. Students without marks will show a mark of 0.')}
+      </Alert>
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -334,45 +415,54 @@ const MarksPage = () => {
         </Alert>
       )}
 
-      <MarksFilters
-        selectedFilters={selectedFilters}
-        onFilterChange={handleFilterChange}
-        teacherSubjects={teacherSubjects}
-        teacherGrades={teacherGrades}
-        sectionsByGrade={sectionsByGrade}
-        markTypes={markTypes}
-        onSearch={handleSearchMarks}
-        isSearchValid={isSearchValid}
-        isRTL={isRTL}
-        disabled={isAddMode}
-      />
+      {isTeacher ? (
+        <MarksFilters
+          selectedFilters={selectedFilters}
+          onFilterChange={handleFilterChange}
+          teacherSubjects={teacherSubjects}
+          teacherGrades={teacherGrades}
+          sectionsByGrade={sectionsByGrade}
+          markTypes={markTypes}
+          onSearch={handleSearchMarks}
+          isSearchValid={isSearchValid}
+          isRTL={isRTL}
+          disabled={isAddMode}
+        />
+      ) : (isCooperator || isAdmin) ? (
+        <SchoolStructureFilters
+          selectedFilters={selectedFilters}
+          onFilterChange={handleFilterChange}
+          studyStages={studyStages}
+          gradesByStudyStage={gradesByStudyStage}
+          sectionsByGrade={sectionsByGrade}
+          subjectsByGrade={subjectsByGrade}
+          markTypes={markTypes}
+          onSearch={handleSearchMarks}
+          isSearchValid={isSearchValid}
+          isRTL={isRTL}
+          disabled={isAddMode}
+        />
+      ) : null}
 
       {loading ? (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <CircularProgress />
         </Box>
       ) : combinedData.length > 0 ? (
-        <MarksTable
+               <MarksTable
           data={combinedData}
           onEdit={handleEditClick}
-          onDelete={handleDeleteClick}
           isRTL={isRTL}
           isAddMode={isAddMode}
           onSaveMarks={handleSaveMarks}
           onCancelAdd={handleCancelAdd}
           markInputs={markInputs}
           setMarkInputs={setMarkInputs}
+          readOnly={isReadOnly}
         />
       ) : (
         <EmptyState />
       )}
-
-      <DeleteConfirmationDialog
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-        onConfirm={handleDeleteConfirm}
-        mark={selectedMark}
-      />
 
       <EditMarkDialog
         open={editDialogOpen}

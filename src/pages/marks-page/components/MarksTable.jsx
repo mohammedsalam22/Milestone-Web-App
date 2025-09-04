@@ -19,7 +19,6 @@ import {
 } from '@mui/material';
 import {
   Edit as EditIcon,
-  Delete as DeleteIcon,
   Person as PersonIcon,
   Save as SaveIcon,
   Cancel as CancelIcon,
@@ -29,7 +28,6 @@ import { useTranslation } from 'react-i18next';
 const MarksTable = ({ 
   data, 
   onEdit, 
-  onDelete, 
   isRTL,
   isAddMode = false,
   onMarkChange = null,
@@ -37,6 +35,7 @@ const MarksTable = ({
   onCancelAdd = null,
   markInputs = {},
   setMarkInputs = null,
+  readOnly = false,
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -89,7 +88,7 @@ const MarksTable = ({
 
   return (
     <Box>
-      {isAddMode && (
+      {isAddMode && !readOnly && (
         <>
           <Alert severity="info" sx={{ mb: 2 }}>
             {t('Enter marks for students. Leave empty for students who already have marks or should not receive marks.')}
@@ -167,7 +166,7 @@ const MarksTable = ({
               <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>
                 {t('Status')}
               </TableCell>
-              {!isAddMode && (
+              {!isAddMode && !readOnly && (
                 <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>
                   {t('Actions')}
                 </TableCell>
@@ -239,7 +238,7 @@ const MarksTable = ({
 
                   {/* Mark */}
                   <TableCell>
-                    {isAddMode && !hasExistingMark ? (
+                    {isAddMode && !hasExistingMark && !readOnly ? (
                       <TextField
                         type="number"
                         size="small"
@@ -286,7 +285,7 @@ const MarksTable = ({
 
                   {/* Status */}
                   <TableCell>
-                    {isAddMode && !hasExistingMark ? (
+                    {isAddMode && !hasExistingMark && !readOnly ? (
                       <Typography variant="caption" color="text.secondary">
                         {markValue === '' ? t('No Mark') : 
                          parseFloat(markValue) >= row.pass_mark ? t('Pass') : t('Fail')}
@@ -308,7 +307,7 @@ const MarksTable = ({
                   </TableCell>
 
                   {/* Actions */}
-                  {!isAddMode && (
+                  {!isAddMode && !readOnly && (
                     <TableCell>
                       <Box sx={{ display: 'flex', gap: 1 }}>
                         <IconButton
@@ -322,18 +321,6 @@ const MarksTable = ({
                           }}
                         >
                           <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          onClick={() => onDelete(row)}
-                          sx={{
-                            color: theme.palette.error.main,
-                            '&:hover': {
-                              backgroundColor: theme.palette.error.light,
-                            },
-                          }}
-                        >
-                          <DeleteIcon fontSize="small" />
                         </IconButton>
                       </Box>
                     </TableCell>

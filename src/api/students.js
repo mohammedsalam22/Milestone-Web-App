@@ -10,6 +10,12 @@ export const getStudentByIdApi = async (id) => {
   return response.data;
 };
 
+// Filtered students by section
+export const getStudentsBySectionApi = async (sectionId) => {
+  const response = await apiService.get(`/api/users/students?section=${sectionId}`);
+  return response.data;
+};
+
 export const createStudentApi = async (data) => {
   const response = await apiService.post('/api/users/students', data);
   return response.data;

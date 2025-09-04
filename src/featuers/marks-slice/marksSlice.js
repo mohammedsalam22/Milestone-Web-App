@@ -4,11 +4,13 @@ import {
   getMarkByIdApi, 
   createMarkApi,
   createMarksBulkApi,
-  updateMarkApi, 
-  deleteMarkApi,
-  getStudentsBySectionApi,
-  getSectionsByGradeApi
+  updateMarkApi
 } from '../../api/marks';
+import { getStudentsBySectionApi } from '../../api/students';
+import { getSectionsByGradeApi } from '../../api/sections';
+import { getSubjectsByGradeApi } from '../../api/subjects';
+import { getStudyStagesApi } from '../../api/studyStages';
+import { getGradesByStudyStageApi } from '../../api/grades';
 
 // Async thunks
 export const fetchMarks = createAsyncThunk(
@@ -82,19 +84,6 @@ export const updateMark = createAsyncThunk(
   }
 );
 
-export const deleteMark = createAsyncThunk(
-  'marks/deleteMark',
-  async (id, { rejectWithValue }) => {
-    try {
-      await deleteMarkApi(id);
-      return id;
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.detail || 'Failed to delete mark.'
-      );
-    }
-  }
-);
 
 export const fetchStudentsBySection = createAsyncThunk(
   'marks/fetchStudentsBySection',
@@ -124,10 +113,59 @@ export const fetchSectionsByGrade = createAsyncThunk(
   }
 );
 
+// For cooperators - fetch subjects by grade
+export const fetchSubjectsByGrade = createAsyncThunk(
+  'marks/fetchSubjectsByGrade',
+  async (gradeId, { rejectWithValue }) => {
+    try {
+      const data = await getSubjectsByGradeApi(gradeId);
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.detail || 'Failed to fetch subjects by grade.'
+      );
+    }
+  }
+);
+
+// For cooperators - fetch study stages
+export const fetchStudyStages = createAsyncThunk(
+  'marks/fetchStudyStages',
+  async (_, { rejectWithValue }) => {
+    try {
+      const data = await getStudyStagesApi();
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.detail || 'Failed to fetch study stages.'
+      );
+    }
+  }
+);
+
+// For cooperators - fetch grades by study stage
+export const fetchGradesByStudyStage = createAsyncThunk(
+  'marks/fetchGradesByStudyStage',
+  async (studyStageId, { rejectWithValue }) => {
+    try {
+      const data = await getGradesByStudyStageApi(studyStageId);
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.detail || 'Failed to fetch grades by study stage.'
+      );
+    }
+  }
+);
+
 const initialState = {
   marks: [],
   studentsBySection: [],
   sectionsByGrade: [],
+  // For cooperators
+  subjectsByGrade: [],
+  studyStages: [],
+  gradesByStudyStage: [],
   selectedMark: null,
   loading: false,
   error: null,
@@ -141,6 +179,8 @@ const initialState = {
     grade: '',
     section: '',
     mark_type: '',
+    // For cooperators
+    study_stage: '',
   },
 };
 
@@ -178,6 +218,16 @@ const marksSlice = createSlice({
     },
     clearSectionsByGrade: (state) => {
       state.sectionsByGrade = [];
+    },
+    // For cooperators
+    clearSubjectsByGrade: (state) => {
+      state.subjectsByGrade = [];
+    },
+    clearGradesByStudyStage: (state) => {
+      state.gradesByStudyStage = [];
+    },
+    clearStudyStages: (state) => {
+      state.studyStages = [];
     },
   },
   extraReducers: (builder) => {
@@ -256,19 +306,6 @@ const marksSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Delete mark
-      .addCase(deleteMark.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(deleteMark.fulfilled, (state, action) => {
-        state.loading = false;
-        state.marks = state.marks.filter(mark => mark.id !== action.payload);
-      })
-      .addCase(deleteMark.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
       // Fetch students by section
       .addCase(fetchStudentsBySection.pending, (state) => {
         state.loading = true;
@@ -294,6 +331,45 @@ const marksSlice = createSlice({
       .addCase(fetchSectionsByGrade.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      // Fetch subjects by grade (for cooperators)
+      .addCase(fetchSubjectsByGrade.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSubjectsByGrade.fulfilled, (state, action) => {
+        state.loading = false;
+        state.subjectsByGrade = action.payload;
+      })
+      .addCase(fetchSubjectsByGrade.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Fetch study stages (for cooperators)
+      .addCase(fetchStudyStages.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchStudyStages.fulfilled, (state, action) => {
+        state.loading = false;
+        state.studyStages = action.payload;
+      })
+      .addCase(fetchStudyStages.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Fetch grades by study stage (for cooperators)
+      .addCase(fetchGradesByStudyStage.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchGradesByStudyStage.fulfilled, (state, action) => {
+        state.loading = false;
+        state.gradesByStudyStage = action.payload;
+      })
+      .addCase(fetchGradesByStudyStage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
@@ -305,7 +381,10 @@ export const {
   setSelectedFilters,
   clearFilters,
   clearStudentsBySection,
-  clearSectionsByGrade
+  clearSectionsByGrade,
+  clearSubjectsByGrade,
+  clearGradesByStudyStage,
+  clearStudyStages,
 } = marksSlice.actions;
 
 export default marksSlice.reducer;
