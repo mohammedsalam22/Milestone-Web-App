@@ -171,18 +171,18 @@
   "applyFilters": "Apply Filters",
   "clearFilters": "Clear Filters",
   "activeFilters": "Active Filters",
-  "incidentTitle": "Incident Title",
-  "enterIncidentTitle": "Enter incident title",
-  "procedure": "Procedure",
-  "enterProcedure": "Enter the procedure to be taken",
+  "incidentTitle": "Incident Type",
+  "enterIncidentTitle": "Select incident type",
+  "procedure": "Action Taken",
+  "enterProcedure": "Select action taken",
   "note": "Note",
   "enterNote": "Enter incident details",
   "dateAndTime": "Date & Time",
   "selectStudents": "Select Students",
   "searchStudents": "Search students...",
   "pleaseSelectStudents": "Please select at least one student",
-  "titleIsRequired": "Title is required",
-  "procedureIsRequired": "Procedure is required",
+  "titleIsRequired": "Incident type is required",
+  "procedureIsRequired": "Action taken is required",
   "noteIsRequired": "Note is required",
   "dateIsRequired": "Date is required",
   "saving": "Saving...",
@@ -534,5 +534,31 @@
   "editDailyAttendance": "Edit Daily Absence Records",
   "editDailyAttendanceDescription": "Edit absence records for multiple students at once",
   "trackStudentAttendance": "Track Student Absences",
-  "noAttendanceRecordsForSection": "No absence records found for this section on the selected date"
+  "noAttendanceRecordsForSection": "No absence records found for this section on the selected date",
+  
+  "schoolStructure": "School Structure",
+  "selectSchoolStructure": "Select School Structure",
+  "searchSchoolStructure": "Search school structure",
+  "noResultsFound": "No results found",
+  "noSelection": "No selection",
+  "selected": "Selected",
+  "clear": "Clear",
+  "cancel": "Cancel",
+  "select": "Select",
+  "limit": "Limit",
+  "filterBySchoolStructure": "Filter by School Structure",
+  
+  "incidentTitleOptions": {
+    "مشاجرة": "Fight",
+    "تنمر": "Bullying",
+    "سوء تصرف": "Misbehavior",
+    "تخريب اساس المدرسة": "School Property Damage",
+    "اخرى": "Other"
+  },
+  "procedureOptions": {
+    "تنبيه شفهي": "Verbal Warning",
+    "استدعاء ولي امر": "Parent Call",
+    "كتابة تعهد": "Written Commitment",
+    "فصل نهائي": "Permanent Expulsion"
+  }
 }

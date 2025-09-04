@@ -19,7 +19,9 @@ import { useTranslation } from 'react-i18next';
 
 const EmptyState = ({
   searchTerm,
-  sectionFilter,
+  selectedStudyStage,
+  selectedGrade,
+  selectedSection,
   dateFilter,
   onCreateClick,
   onClearFilters,
@@ -28,7 +30,7 @@ const EmptyState = ({
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const hasActiveFilters = searchTerm || sectionFilter !== 'all' || dateFilter;
+  const hasActiveFilters = searchTerm || selectedStudyStage || selectedGrade || selectedSection || dateFilter;
 
   if (hasActiveFilters) {
     return (

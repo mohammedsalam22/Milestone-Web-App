@@ -22,12 +22,16 @@ import {
   Warning as ExcusedIcon,
   Add as AddIcon,
   EventNote as EventNoteIcon,
+  School as SchoolIcon,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { fetchAttendances, createAttendance, updateAttendance, deleteAttendance } from '../../featuers/attendances-slice/attendancesSlice';
 import { fetchSections } from '../../featuers/sections-slice/sectionsSlice';
 import { fetchStudents } from '../../featuers/students-slice/studentsSlice';
+import { fetchStudyStages } from '../../featuers/study-stages-slice/studyStagesSlice';
+import { fetchGrades } from '../../featuers/grades-slice/gradesSlice';
+import SchoolStructureDialog from '../../components/SchoolStructureDialog';
 import {
   AttendancesHeader,
   EmptyState,
@@ -42,22 +46,29 @@ const AttendancesPage = () => {
   const { attendances, loading, error } = useSelector((state) => state.attendances);
   const { sections } = useSelector((state) => state.sections);
   const { students, loading: studentsLoading } = useSelector((state) => state.students);
+  const { studyStages } = useSelector((state) => state.studyStages);
+  const { grades } = useSelector((state) => state.grades);
 
   const isRTL = i18n.language === 'ar';
 
   // Dialog states
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedAttendance, setSelectedAttendance] = useState(null);
+  const [structureDialogOpen, setStructureDialogOpen] = useState(false);
 
   // Filter and search states
   const [searchTerm, setSearchTerm] = useState('');
-  const [sectionFilter, setSectionFilter] = useState('all');
+  const [selectedStudyStage, setSelectedStudyStage] = useState('');
+  const [selectedGrade, setSelectedGrade] = useState('');
+  const [selectedSection, setSelectedSection] = useState('');
   const [dateFilter, setDateFilter] = useState('');
 
   useEffect(() => {
     dispatch(fetchAttendances());
     dispatch(fetchSections());
     dispatch(fetchStudents());
+    dispatch(fetchStudyStages());
+    dispatch(fetchGrades());
     
     // Set default date to today
     const today = new Date().toISOString().split('T')[0];
@@ -107,9 +118,30 @@ const AttendancesPage = () => {
     }
   };
 
+  const handleStructureSelect = ({ studyStage, grade, section }) => {
+    setSelectedStudyStage(studyStage);
+    setSelectedGrade(grade);
+    setSelectedSection(section);
+  };
+
+  const getSelectedPath = () => {
+    const stage = studyStages.find(s => s.id === parseInt(selectedStudyStage));
+    const grade = grades.find(g => g.id === parseInt(selectedGrade));
+    const section = sections.find(s => s.id === parseInt(selectedSection));
+    
+    let path = '';
+    if (stage) path += stage.name;
+    if (grade) path += ` → ${grade.name}`;
+    if (section) path += ` → ${section.name}`;
+    
+    return path || t('selectSchoolStructure');
+  };
+
   const handleClearFilters = () => {
     setSearchTerm('');
-    setSectionFilter('all');
+    setSelectedStudyStage('');
+    setSelectedGrade('');
+    setSelectedSection('');
     const today = new Date().toISOString().split('T')[0];
     setDateFilter(today);
   };
@@ -120,14 +152,23 @@ const AttendancesPage = () => {
       attendance.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       attendance.note.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Section filtering: check if student belongs to the selected section
-    const matchesSection = sectionFilter === 'all' || 
-      students.find(s => s.id === attendance.student_id)?.section?.id === parseInt(sectionFilter);
+    // School structure filtering
+    const student = students.find(s => s.id === attendance.student_id);
+    const studentSection = student?.section;
+    const studentGrade = studentSection?.grade;
+    const studentStudyStage = studentGrade?.study_stage;
+    
+    const matchesStudyStage = !selectedStudyStage || 
+      studentStudyStage?.id === parseInt(selectedStudyStage);
+    const matchesGrade = !selectedGrade || 
+      studentGrade?.id === parseInt(selectedGrade);
+    const matchesSection = !selectedSection || 
+      studentSection?.id === parseInt(selectedSection);
     
     const matchesDate = !dateFilter || 
       attendance.date === dateFilter;
     
-    return matchesSearch && matchesSection && matchesDate;
+    return matchesSearch && matchesStudyStage && matchesGrade && matchesSection && matchesDate;
   });
 
   // Group attendances by section and date
@@ -141,7 +182,12 @@ const AttendancesPage = () => {
       section,
       attendances: sectionAttendances
     };
-  }).filter(group => group.attendances.length > 0 || sectionFilter === 'all' || sectionFilter === group.section.id.toString());
+  }).filter(group => {
+    // Show section if it has attendances OR if no specific section is selected
+    const hasAttendances = group.attendances.length > 0;
+    const noSectionFilter = !selectedSection;
+    return hasAttendances || noSectionFilter;
+  });
 
   const getStatusIcon = (absent, excused) => {
     if (!absent) return <PresentIcon color="success" />;
@@ -184,11 +230,13 @@ const AttendancesPage = () => {
       <AttendancesHeader
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
-        sectionFilter={sectionFilter}
-        setSectionFilter={setSectionFilter}
+        selectedStudyStage={selectedStudyStage}
+        selectedGrade={selectedGrade}
+        selectedSection={selectedSection}
+        onStructureClick={() => setStructureDialogOpen(true)}
+        getSelectedPath={getSelectedPath}
         dateFilter={dateFilter}
         setDateFilter={setDateFilter}
-        sections={sections}
         onCreateClick={handleCreateClick}
         isRTL={isRTL}
       />
@@ -204,7 +252,9 @@ const AttendancesPage = () => {
        {groupedAttendances.length === 0 ? (
          <EmptyState
            searchTerm={searchTerm}
-           sectionFilter={sectionFilter}
+           selectedStudyStage={selectedStudyStage}
+           selectedGrade={selectedGrade}
+           selectedSection={selectedSection}
            dateFilter={dateFilter}
            onCreateClick={handleCreateClick}
            onClearFilters={handleClearFilters}
@@ -347,6 +397,20 @@ const AttendancesPage = () => {
          selectedAttendance={selectedAttendance}
          loading={loading}
          onConfirm={handleDeleteConfirm}
+       />
+
+       {/* School Structure Dialog */}
+       <SchoolStructureDialog
+         open={structureDialogOpen}
+         onClose={() => setStructureDialogOpen(false)}
+         onSelect={handleStructureSelect}
+         studyStages={studyStages || []}
+         grades={grades || []}
+         sections={sections || []}
+         selectedStudyStage={selectedStudyStage}
+         selectedGrade={selectedGrade}
+         selectedSection={selectedSection}
+         title={t('filterBySchoolStructure')}
        />
     </Box>
   );

@@ -75,30 +75,36 @@ const SubjectsTable = ({
               </TableCell>
               <TableCell>
                 <Chip
-                  label={getGradeName(subject.grade_id)}
+                  label={getGradeName(subject)}
                   size="small"
-                  color={getGradeColor(getGradeName(subject.grade_id))}
+                  color={getGradeColor(getGradeName(subject))}
                   variant="outlined"
                   sx={{ fontWeight: 600 }}
                 />
               </TableCell>
               <TableCell>
-                {subject.teacher && subject.teacher.length > 0 ? (
+                {subject.teacher && subject.teacher.filter(teacher => teacher && (typeof teacher === 'string' ? teacher.trim() : teacher.name)).length > 0 ? (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <AvatarGroup max={3} sx={{ '& .MuiAvatar-root': { width: 24, height: 24, fontSize: '0.7rem' } }}>
-                      {subject.teacher.map((teacher, idx) => (
-                        <Tooltip key={idx} title={teacher}>
-                          <Avatar sx={{ 
-                            bgcolor: theme.palette.secondary.main,
-                            color: theme.palette.secondary.contrastText,
-                          }}>
-                            {getTeacherInitials(teacher)}
-                          </Avatar>
-                        </Tooltip>
-                      ))}
+                      {subject.teacher
+                        .filter(teacher => teacher && (typeof teacher === 'string' ? teacher.trim() : teacher.name))
+                        .map((teacher, idx) => {
+                          const teacherName = typeof teacher === 'string' ? teacher : teacher.name;
+                          const teacherId = typeof teacher === 'object' ? teacher.id : idx;
+                          return (
+                            <Tooltip key={teacherId} title={teacherName}>
+                              <Avatar sx={{ 
+                                bgcolor: theme.palette.secondary.main,
+                                color: theme.palette.secondary.contrastText,
+                              }}>
+                                {getTeacherInitials(teacher)}
+                              </Avatar>
+                            </Tooltip>
+                          );
+                        })}
                     </AvatarGroup>
                     <Typography variant="caption" color="text.secondary">
-                      ({subject.teacher.length})
+                      ({subject.teacher.filter(teacher => teacher && (typeof teacher === 'string' ? teacher.trim() : teacher.name)).length})
                     </Typography>
                   </Box>
                 ) : (

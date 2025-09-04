@@ -170,18 +170,18 @@
   "applyFilters": "تطبيق المرشحات",
   "clearFilters": "مسح المرشحات",
   "activeFilters": "المرشحات النشطة",
-  "incidentTitle": "عنوان الحادث",
-  "enterIncidentTitle": "أدخل عنوان الحادث",
-  "procedure": "الإجراء",
-  "enterProcedure": "أدخل الإجراء الذي سيتم اتخاذه",
+  "incidentTitle": "نوع الحادث",
+  "enterIncidentTitle": "اختر نوع الحادث",
+  "procedure": "الإجراء المتخذ",
+  "enterProcedure": "اختر الإجراء المتخذ",
   "note": "ملاحظة",
   "enterNote": "أدخل تفاصيل الحادث",
   "dateAndTime": "التاريخ والوقت",
   "selectStudents": "اختر الطلاب",
   "searchStudents": "ابحث عن الطلاب...",
   "pleaseSelectStudents": "يرجى اختيار طالب واحد على الأقل",
-  "titleIsRequired": "العنوان مطلوب",
-  "procedureIsRequired": "الإجراء مطلوب",
+  "titleIsRequired": "نوع الحادث مطلوب",
+  "procedureIsRequired": "الإجراء المتخذ مطلوب",
   "noteIsRequired": "الملاحظة مطلوبة",
   "dateIsRequired": "التاريخ مطلوب",
   "saving": "جاري الحفظ...",
@@ -533,5 +533,31 @@
   "editDailyAttendance": "تعديل سجلات الغياب اليومي",
   "editDailyAttendanceDescription": "تعديل سجلات الغياب لعدة طلاب في وقت واحد",
   "trackStudentAttendance": "تتبع غياب الطلاب",
-  "noAttendanceRecordsForSection": "لا توجد سجلات غياب لهذا القسم في التاريخ المحدد"
+  "noAttendanceRecordsForSection": "لا توجد سجلات غياب لهذا القسم في التاريخ المحدد",
+  
+  "schoolStructure": "الهيكل المدرسي",
+  "selectSchoolStructure": "اختر الهيكل المدرسي",
+  "searchSchoolStructure": "البحث في الهيكل المدرسي",
+  "noResultsFound": "لم يتم العثور على نتائج",
+  "noSelection": "لم يتم الاختيار",
+  "selected": "المحدد",
+  "clear": "مسح",
+  "cancel": "إلغاء",
+  "select": "اختيار",
+  "limit": "الحد الأقصى",
+  "filterBySchoolStructure": "تصفية حسب الهيكل المدرسي",
+  
+  "incidentTitleOptions": {
+    "مشاجرة": "مشاجرة",
+    "تنمر": "تنمر",
+    "سوء تصرف": "سوء تصرف",
+    "تخريب اساس المدرسة": "تخريب اساس المدرسة",
+    "اخرى": "اخرى"
+  },
+  "procedureOptions": {
+    "تنبيه شفهي": "تنبيه شفهي",
+    "استدعاء ولي امر": "استدعاء ولي امر",
+    "كتابة تعهد": "كتابة تعهد",
+    "فصل نهائي": "فصل نهائي"
+  }
 }

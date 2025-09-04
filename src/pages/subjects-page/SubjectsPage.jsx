@@ -7,7 +7,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { fetchSubjects, createSubject, updateSubject, deleteSubject } from '../../featuers/subjects-slice/subjectsSlice';
-import { fetchSections } from '../../featuers/sections-slice/sectionsSlice';
+import { fetchGrades } from '../../featuers/grades-slice/gradesSlice';
 import {
   SubjectsHeader,
   SubjectsTable,
@@ -21,7 +21,7 @@ const SubjectsPage = () => {
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
   const { subjects, loading, error } = useSelector((state) => state.subjects);
-  const { sections } = useSelector((state) => state.sections);
+  const { grades } = useSelector((state) => state.grades);
 
   const isRTL = i18n.language === 'ar';
 
@@ -42,7 +42,7 @@ const SubjectsPage = () => {
 
   useEffect(() => {
     dispatch(fetchSubjects());
-    dispatch(fetchSections());
+    dispatch(fetchGrades());
   }, [dispatch]);
 
   const handleCreateClick = () => {
@@ -55,8 +55,8 @@ const SubjectsPage = () => {
     setSelectedSubject(subject);
     setFormData({ 
       name: subject.name, 
-      grade_id: subject.grade_id || '', 
-      teacher: subject.teacher || [] 
+      grade_id: subject.grade ? subject.grade.id : (subject.grade_id || ''), 
+      teacher: subject.teacher ? subject.teacher.map(t => typeof t === 'string' ? t : t.name) : [] 
     });
     setFormErrors({});
     setEditDialogOpen(true);
@@ -113,8 +113,29 @@ const SubjectsPage = () => {
     }
   };
 
-  const getTeacherInitials = (teacherName) => {
-    return teacherName.split(' ').map(name => name[0]).join('').toUpperCase();
+  const getTeacherInitials = (teacher) => {
+    // Handle both string and object formats
+    let teacherName;
+    
+    if (typeof teacher === 'string') {
+      teacherName = teacher;
+    } else if (teacher && typeof teacher === 'object' && teacher.name) {
+      teacherName = teacher.name;
+    } else {
+      return '?';
+    }
+    
+    // Handle cases where teacherName might be null, undefined, or not a string
+    if (!teacherName || typeof teacherName !== 'string') {
+      return '?';
+    }
+    
+    // Split by spaces and get first letter of each word
+    const initials = teacherName.trim().split(' ').map(name => {
+      return name && name.length > 0 ? name[0] : '';
+    }).filter(initial => initial).join('');
+    
+    return initials.toUpperCase() || '?';
   };
 
   const getGradeColor = (grade) => {
@@ -128,15 +149,17 @@ const SubjectsPage = () => {
     return gradeColors[grade] || 'default';
   };
 
-  // Helper function to get grade name from grade_id
-  const getGradeName = (gradeId) => {
-    const section = sections.find(s => s.id === gradeId);
-    return section ? section.name : `Grade ${gradeId}`;
+  // Helper function to get grade name from subject
+  const getGradeName = (subject) => {
+    if (subject.grade && subject.grade.name) {
+      return subject.grade.name;
+    }
+    return 'Unknown Grade';
   };
 
   // Helper function to get grade name for filtering
   const getGradeNameForFilter = (subject) => {
-    return getGradeName(subject.grade_id);
+    return getGradeName(subject);
   };
 
   const filteredAndSortedSubjects = subjects
@@ -144,9 +167,10 @@ const SubjectsPage = () => {
       const gradeName = getGradeNameForFilter(subject);
       const matchesSearch = subject.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            gradeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           subject.teacher?.some(teacher => 
-                             teacher.toLowerCase().includes(searchTerm.toLowerCase())
-                           );
+                           subject.teacher?.some(teacher => {
+                             const teacherName = typeof teacher === 'string' ? teacher : teacher.name;
+                             return teacherName && teacherName.toLowerCase().includes(searchTerm.toLowerCase());
+                           });
       const matchesGrade = gradeFilter === 'all' || gradeName === gradeFilter;
       return matchesSearch && matchesGrade;
     })
@@ -154,13 +178,13 @@ const SubjectsPage = () => {
       switch (sortBy) {
         case 'name': return a.name.localeCompare(b.name);
         case 'grade': return getGradeNameForFilter(a).localeCompare(getGradeNameForFilter(b));
-        case 'teachers': return (a.teacher?.length || 0) - (b.teacher?.length || 0);
+        case 'teachers': return (a.teacher?.filter(teacher => teacher && (typeof teacher === 'string' ? teacher.trim() : teacher.name)).length || 0) - (b.teacher?.filter(teacher => teacher && (typeof teacher === 'string' ? teacher.trim() : teacher.name)).length || 0);
         default: return 0;
       }
     });
 
-  // Get unique grades for filter from sections
-  const uniqueGrades = [...new Set(sections.map(section => section.name))].sort();
+  // Get unique grades for filter from subjects data
+  const uniqueGrades = [...new Set(subjects.map(subject => getGradeName(subject)))].sort();
 
   const handleClearFilters = () => {
     setSearchTerm('');
@@ -223,7 +247,7 @@ const SubjectsPage = () => {
         onClose={() => setCreateDialogOpen(false)}
         formData={formData}
         formErrors={formErrors}
-        sections={sections}
+        grades={grades}
         loading={loading}
         onInputChange={handleInputChange}
         onSubmit={handleCreateSubmit}
@@ -234,7 +258,7 @@ const SubjectsPage = () => {
         onClose={() => setEditDialogOpen(false)}
         formData={formData}
         formErrors={formErrors}
-        sections={sections}
+        grades={grades}
         loading={loading}
         onInputChange={handleInputChange}
         onSubmit={handleEditSubmit}

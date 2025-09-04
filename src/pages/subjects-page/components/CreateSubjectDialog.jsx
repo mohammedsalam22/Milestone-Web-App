@@ -19,7 +19,7 @@ const CreateSubjectDialog = ({
   onClose,
   formData,
   formErrors,
-  sections,
+  grades,
   loading,
   onInputChange,
   onSubmit,
@@ -55,9 +55,9 @@ const CreateSubjectDialog = ({
             label={t('grade')}
             sx={{ mt: 2, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
           >
-            {sections.map((section) => (
-              <MenuItem key={section.id} value={section.id}>
-                {section.name}
+            {grades.map((grade) => (
+              <MenuItem key={grade.id} value={grade.id}>
+                {grade.name}
               </MenuItem>
             ))}
           </Select>

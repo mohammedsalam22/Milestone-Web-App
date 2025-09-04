@@ -22,12 +22,16 @@ import {
 import {
   Save as SaveIcon,
   Cancel as CancelIcon,
+  School as SchoolIcon,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { createDailyAttendance, updateAttendance } from '../../featuers/attendances-slice/attendancesSlice';
 import { fetchSections } from '../../featuers/sections-slice/sectionsSlice';
 import { fetchStudents } from '../../featuers/students-slice/studentsSlice';
+import { fetchStudyStages } from '../../featuers/study-stages-slice/studyStagesSlice';
+import { fetchGrades } from '../../featuers/grades-slice/gradesSlice';
+import SchoolStructureDialog from '../../components/SchoolStructureDialog';
 
 const DailyAttendancePage = () => {
   const dispatch = useDispatch();
@@ -37,6 +41,8 @@ const DailyAttendancePage = () => {
   const theme = useTheme();
   const { loading, error } = useSelector((state) => state.attendances);
   const { sections } = useSelector((state) => state.sections);
+  const { studyStages } = useSelector((state) => state.studyStages);
+  const { grades } = useSelector((state) => state.grades);
   const { students, loading: studentsLoading } = useSelector((state) => state.students);
 
   const isRTL = i18n.language === 'ar';
@@ -47,16 +53,26 @@ const DailyAttendancePage = () => {
   const existingAttendances = location.state?.existingAttendances || [];
 
   // Form states
+  const [selectedStudyStage, setSelectedStudyStage] = useState('');
+  const [selectedGrade, setSelectedGrade] = useState('');
   const [selectedSection, setSelectedSection] = useState(preSelectedSection);
   const [selectedDate, setSelectedDate] = useState(preSelectedDate);
   const [selectedStudents, setSelectedStudents] = useState({});
   const [studentNotes, setStudentNotes] = useState({});
   const [studentExcused, setStudentExcused] = useState({});
+  const [structureDialogOpen, setStructureDialogOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchSections());
     dispatch(fetchStudents());
+    dispatch(fetchStudyStages());
+    dispatch(fetchGrades());
   }, [dispatch]);
+
+  // Clear section when grade changes
+  useEffect(() => {
+    setSelectedSection('');
+  }, [selectedGrade]);
 
   // Pre-populate form with existing attendance data
   useEffect(() => {
@@ -85,6 +101,7 @@ const DailyAttendancePage = () => {
   const sectionStudents = students.filter(student => 
     student.section?.id === parseInt(selectedSection)
   );
+
 
   const handleStudentToggle = (studentId) => {
     setSelectedStudents(prev => ({
@@ -119,6 +136,25 @@ const DailyAttendancePage = () => {
       ...prev,
       [studentId]: excused
     }));
+  };
+
+  const handleStructureSelect = ({ studyStage, grade, section }) => {
+    setSelectedStudyStage(studyStage);
+    setSelectedGrade(grade);
+    setSelectedSection(section);
+  };
+
+  const getSelectedPath = () => {
+    const stage = studyStages.find(s => s.id === parseInt(selectedStudyStage));
+    const grade = grades.find(g => g.id === parseInt(selectedGrade));
+    const section = sections.find(s => s.id === parseInt(selectedSection));
+    
+    let path = '';
+    if (stage) path += stage.name;
+    if (grade) path += ` → ${grade.name}`;
+    if (section) path += ` → ${section.name}`;
+    
+    return path || t('selectSchoolStructure');
   };
 
   const handleSubmit = async () => {
@@ -213,24 +249,33 @@ const DailyAttendancePage = () => {
           {t('selectSectionAndDate')}
         </Typography>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={6} md={4}>
-            <FormControl fullWidth>
-              <InputLabel>{t('section')}</InputLabel>
-              <Select
-                value={selectedSection}
-                onChange={(e) => setSelectedSection(e.target.value)}
-                label={t('section')}
-              >
-                <MenuItem value="">{t('selectSection')}</MenuItem>
-                {sections.map(section => (
-                  <MenuItem key={section.id} value={section.id}>
-                    {section.name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <Grid item xs={12} sm={6} md={6}>
+            <Button
+              variant="outlined"
+              fullWidth
+              onClick={() => setStructureDialogOpen(true)}
+              sx={{
+                height: 56,
+                justifyContent: 'flex-start',
+                textAlign: 'left',
+                textTransform: 'none',
+                borderStyle: 'dashed',
+                borderWidth: 2,
+                '&:hover': {
+                  borderStyle: 'solid',
+                  borderWidth: 2,
+                }
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+                <SchoolIcon color="primary" />
+                <Typography variant="body1" color="text.primary">
+                  {getSelectedPath()}
+                </Typography>
+              </Box>
+            </Button>
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={3}>
             <TextField
               fullWidth
               type="date"
@@ -352,6 +397,20 @@ const DailyAttendancePage = () => {
           )}
         </Box>
       )}
+
+      {/* School Structure Dialog */}
+      <SchoolStructureDialog
+        open={structureDialogOpen}
+        onClose={() => setStructureDialogOpen(false)}
+        onSelect={handleStructureSelect}
+        studyStages={studyStages || []}
+        grades={grades || []}
+        sections={sections || []}
+        selectedStudyStage={selectedStudyStage}
+        selectedGrade={selectedGrade}
+        selectedSection={selectedSection}
+        title={t('selectSchoolStructure')}
+      />
     </Box>
   );
 };

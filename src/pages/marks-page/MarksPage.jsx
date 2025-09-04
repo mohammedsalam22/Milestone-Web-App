@@ -25,6 +25,9 @@ import {
   createMarks,
   updateMark,
 } from '../../featuers/marks-slice/marksSlice';
+import { fetchSections } from '../../featuers/sections-slice/sectionsSlice';
+import { fetchGrades } from '../../featuers/grades-slice/gradesSlice';
+import SchoolStructureDialog from '../../components/SchoolStructureDialog';
 import { 
   MarksHeader,
   MarksTable,
@@ -33,6 +36,7 @@ import {
   EmptyState,
   EditMarkDialog,
 } from './components';
+import PerformanceStructureFilters from './components/PerformanceStructureFilters';
 
 const MarksPage = () => {
   const dispatch = useDispatch();
@@ -50,6 +54,8 @@ const MarksPage = () => {
     loading, 
     error 
   } = useSelector((state) => state.marks);
+  const { sections } = useSelector((state) => state.sections);
+  const { grades } = useSelector((state) => state.grades);
   const { user } = useSelector((state) => state.login);
   
   const isRTL = i18n.language === 'ar';
@@ -58,6 +64,7 @@ const MarksPage = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState(null);
+  const [structureDialogOpen, setStructureDialogOpen] = useState(false);
 
   // Add mode states
   const [isAddMode, setIsAddMode] = useState(false);
@@ -335,15 +342,71 @@ const MarksPage = () => {
     setSuccessMessage('');
   };
 
+  // Handle school structure selection
+  const handleStructureSelect = ({ studyStage, grade, section }) => {
+    const newFilters = {
+      ...selectedFilters,
+      study_stage: studyStage,
+      grade: grade,
+      section: section,
+    };
+    
+    setLocalSelectedFilters(newFilters);
+    dispatch(setSelectedFilters(newFilters));
+    
+    // Clear dependent data
+    dispatch(clearSectionsByGrade());
+    dispatch(clearSubjectsByGrade());
+    dispatch(clearStudentsBySection());
+    dispatch(clearGradesByStudyStage());
+    
+    // Fetch grades for the selected study stage
+    if (studyStage) {
+      dispatch(fetchGradesByStudyStage(studyStage));
+    }
+    
+    // Fetch subjects and sections for the selected grade
+    if (grade) {
+      dispatch(fetchSubjectsByGrade(grade));
+      dispatch(fetchSectionsByGrade(grade));
+    }
+    
+    // Fetch students for the selected section
+    if (section) {
+      dispatch(fetchStudentsBySection(section));
+    }
+  };
+
+  const getSelectedPath = () => {
+    const stage = studyStages.find(s => s.id === parseInt(selectedFilters.study_stage));
+    const grade = grades.find(g => g.id === parseInt(selectedFilters.grade));
+    const section = sections.find(s => s.id === parseInt(selectedFilters.section));
+    
+    let path = '';
+    if (stage) path += stage.name;
+    if (grade) path += ` → ${grade.name}`;
+    if (section) path += ` → ${section.name}`;
+    
+    return path || t('selectSchoolStructure');
+  };
+
   // Check if search is valid
   const isSearchValid = selectedFilters.subject && selectedFilters.mark_type && selectedFilters.section;
 
-  // Load study stages for cooperators on component mount
+  // Load study stages, grades, and sections for cooperators and admins on component mount
   React.useEffect(() => {
-    if ((isCooperator || isAdmin) && studyStages.length === 0) {
-      dispatch(fetchStudyStages());
+    if ((isCooperator || isAdmin)) {
+      if (studyStages.length === 0) {
+        dispatch(fetchStudyStages());
+      }
+      if (grades.length === 0) {
+        dispatch(fetchGrades());
+      }
+      if (sections.length === 0) {
+        dispatch(fetchSections());
+      }
     }
-  }, [isCooperator, isAdmin, studyStages.length, dispatch]);
+  }, [isCooperator, isAdmin, studyStages.length, grades.length, sections.length, dispatch]);
 
   // Get subject name based on user role
   const getSubjectName = () => {
@@ -429,12 +492,11 @@ const MarksPage = () => {
           disabled={isAddMode}
         />
       ) : (isCooperator || isAdmin) ? (
-        <SchoolStructureFilters
+        <PerformanceStructureFilters
           selectedFilters={selectedFilters}
           onFilterChange={handleFilterChange}
-          studyStages={studyStages}
-          gradesByStudyStage={gradesByStudyStage}
-          sectionsByGrade={sectionsByGrade}
+          onStructureClick={() => setStructureDialogOpen(true)}
+          getSelectedPath={getSelectedPath}
           subjectsByGrade={subjectsByGrade}
           markTypes={markTypes}
           onSearch={handleSearchMarks}
@@ -487,6 +549,20 @@ const MarksPage = () => {
           {successMessage}
         </Alert>
       </Snackbar>
+
+      {/* School Structure Dialog */}
+      <SchoolStructureDialog
+        open={structureDialogOpen}
+        onClose={() => setStructureDialogOpen(false)}
+        onSelect={handleStructureSelect}
+        studyStages={studyStages || []}
+        grades={grades || []}
+        sections={sections || []}
+        selectedStudyStage={selectedFilters.study_stage}
+        selectedGrade={selectedFilters.grade}
+        selectedSection={selectedFilters.section}
+        title={t('selectSchoolStructure')}
+      />
     </Box>
   );
 };

@@ -4,27 +4,26 @@ import {
   Box,
   TextField,
   InputAdornment,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Button,
   useTheme,
 } from '@mui/material';
 import {
   Add as AddIcon,
   Search as SearchIcon,
+  School as SchoolIcon,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
 const AttendancesHeader = ({
   searchTerm,
   setSearchTerm,
-  sectionFilter,
-  setSectionFilter,
+  selectedStudyStage,
+  selectedGrade,
+  selectedSection,
+  onStructureClick,
+  getSelectedPath,
   dateFilter,
   setDateFilter,
-  sections,
   onCreateClick,
   isRTL,
 }) => {
@@ -58,20 +57,30 @@ const AttendancesHeader = ({
           }}
           sx={{ minWidth: 200, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
         />
-        <FormControl size="small" sx={{ minWidth: 150 }}>
-          <InputLabel>{t('filterBySection')}</InputLabel>
-          <Select
-            value={sectionFilter}
-            onChange={(e) => setSectionFilter(e.target.value)}
-            label={t('filterBySection')}
-            sx={{ borderRadius: 2 }}
-          >
-            <MenuItem value="all">{t('allSections')}</MenuItem>
-            {sections.map(section => (
-              <MenuItem key={section.id} value={section.id}>{section.name}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Button
+          variant="outlined"
+          onClick={onStructureClick}
+          sx={{
+            height: 40,
+            minWidth: 200,
+            justifyContent: 'flex-start',
+            textAlign: 'left',
+            textTransform: 'none',
+            borderStyle: 'dashed',
+            borderWidth: 2,
+            '&:hover': {
+              borderStyle: 'solid',
+              borderWidth: 2,
+            }
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+            <SchoolIcon color="primary" />
+            <Typography variant="body2" color="text.primary" sx={{ flex: 1, textAlign: 'left' }}>
+              {getSelectedPath()}
+            </Typography>
+          </Box>
+        </Button>
         <TextField
           type="date"
           label={t('filterByDate')}

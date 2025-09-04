@@ -110,7 +110,7 @@ const IncidentCard = ({ incident, onEdit, onDelete, deleteLoading }) => {
               textAlign: isRTL(i18n.language) ? 'right' : 'left',
             }}
           >
-            {incident.title}
+{t('incidentTitleOptions', { returnObjects: true })[incident.title] || incident.title}
           </Typography>
         </Box>
         
@@ -150,7 +150,7 @@ const IncidentCard = ({ incident, onEdit, onDelete, deleteLoading }) => {
             {t('procedure')}:
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {incident.procedure}
+{t('procedureOptions', { returnObjects: true })[incident.procedure] || incident.procedure}
           </Typography>
         </Box>
 

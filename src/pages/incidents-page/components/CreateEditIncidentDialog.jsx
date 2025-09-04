@@ -125,10 +125,10 @@ const CreateEditIncidentDialog = ({ open, onClose, isEditMode, incident, section
     if (!formData.students.length) {
       newErrors.students = t('pleaseSelectStudents');
     }
-    if (!formData.title.trim()) {
+    if (!formData.title || formData.title.trim() === '') {
       newErrors.title = t('titleIsRequired');
     }
-    if (!formData.procedure.trim()) {
+    if (!formData.procedure || formData.procedure.trim() === '') {
       newErrors.procedure = t('procedureIsRequired');
     }
     if (!formData.note.trim()) {
@@ -288,30 +288,46 @@ const CreateEditIncidentDialog = ({ open, onClose, isEditMode, incident, section
           </FormControl>
 
           {/* Title */}
-          <TextField
-            fullWidth
-            label={t('incidentTitle')}
-            value={formData.title}
-            onChange={(e) => handleInputChange('title', e.target.value)}
-            error={!!errors.title}
-            helperText={errors.title}
-            sx={{ mb: 3 }}
-            placeholder={t('enterIncidentTitle')}
-          />
+          <FormControl fullWidth error={!!errors.title} sx={{ mb: 3 }}>
+            <InputLabel>{t('incidentTitle')}</InputLabel>
+            <Select
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+              label={t('incidentTitle')}
+            >
+              {Object.entries(t('incidentTitleOptions', { returnObjects: true })).map(([arabicValue, translatedValue]) => (
+                <MenuItem key={arabicValue} value={arabicValue}>
+                  {translatedValue}
+                </MenuItem>
+              ))}
+            </Select>
+            {errors.title && (
+              <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
+                {errors.title}
+              </Typography>
+            )}
+          </FormControl>
 
           {/* Procedure */}
-          <TextField
-            fullWidth
-            label={t('procedure')}
-            value={formData.procedure}
-            onChange={(e) => handleInputChange('procedure', e.target.value)}
-            error={!!errors.procedure}
-            helperText={errors.procedure}
-            multiline
-            rows={3}
-            sx={{ mb: 3 }}
-            placeholder={t('enterProcedure')}
-          />
+          <FormControl fullWidth error={!!errors.procedure} sx={{ mb: 3 }}>
+            <InputLabel>{t('procedure')}</InputLabel>
+            <Select
+              value={formData.procedure}
+              onChange={(e) => handleInputChange('procedure', e.target.value)}
+              label={t('procedure')}
+            >
+              {Object.entries(t('procedureOptions', { returnObjects: true })).map(([arabicValue, translatedValue]) => (
+                <MenuItem key={arabicValue} value={arabicValue}>
+                  {translatedValue}
+                </MenuItem>
+              ))}
+            </Select>
+            {errors.procedure && (
+              <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.75 }}>
+                {errors.procedure}
+              </Typography>
+            )}
+          </FormControl>
 
           {/* Note */}
           <TextField

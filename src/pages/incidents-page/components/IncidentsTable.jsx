@@ -98,7 +98,7 @@ const IncidentsTable = ({
                     </Avatar>
                     <Box>
                       <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                        {incident.title}
+{t('incidentTitleOptions', { returnObjects: true })[incident.title] || incident.title}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {incident.note}
@@ -136,7 +136,7 @@ const IncidentsTable = ({
                 </TableCell>
                 <TableCell>
                   <Typography variant="body2" sx={{ maxWidth: 200 }}>
-                    {incident.procedure}
+{t('procedureOptions', { returnObjects: true })[incident.procedure] || incident.procedure}
                   </Typography>
                 </TableCell>
                 <TableCell>
