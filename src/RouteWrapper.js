@@ -27,6 +27,8 @@ import IncidentsPage from './pages/incidents-page/IncidentsPage';
 import AttendancesPage from './pages/attendance-page/AttendancesPage';
 import DailyAttendancePage from './pages/attendance-page/DailyAttendancePage';
 import MarksPage from './pages/marks-page/MarksPage';
+import DiscountsPage from './pages/discounts-page/DiscountsPage';
+import FeesPage from './pages/fees-page/FeesPage';
 
 const RouteWrapper = () => {
   return (
@@ -57,6 +59,8 @@ const RouteWrapper = () => {
         <Route path="/attendances" element={<AttendancesPage />} />
         <Route path="/daily-attendance" element={<DailyAttendancePage />} />
         <Route path="/marks" element={<MarksPage />} />
+        <Route path="/discounts" element={<DiscountsPage />} />
+        <Route path="/fees" element={<FeesPage />} />
     </Routes>
   );
 };

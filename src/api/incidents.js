@@ -23,6 +23,11 @@ export const getIncidentByIdApi = async (id) => {
   return response.data;
 };
 
+export const getStudentIncidentsApi = async (studentId) => {
+  const response = await apiService.get(`/api/school/event?students__id=${studentId}`);
+  return response.data;
+};
+
 export const createIncidentApi = async (data) => {
   const response = await apiService.post('/api/school/event', data);
   return response.data;

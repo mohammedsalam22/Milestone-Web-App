@@ -18,6 +18,8 @@ import visitsSlice from "../featuers/visits-slice/visitsSlice";
 import incidentsSlice from "../featuers/incidents-slice/incidentsSlice";
 import attendancesSlice from "../featuers/attendances-slice/attendancesSlice";
 import marksSlice from "../featuers/marks-slice/marksSlice";
+import discountsSlice from "../featuers/discounts-slice/discountsSlice";
+import feesSlice from "../featuers/fees-slice/feesSlice";
 
 // Configure the store
 const store = configureStore({
@@ -41,6 +43,8 @@ const store = configureStore({
     incidents: incidentsSlice,
     attendances: attendancesSlice,
     marks: marksSlice,
+    discounts: discountsSlice,
+    fees: feesSlice,
   },
 });
 

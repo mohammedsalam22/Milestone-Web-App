@@ -2,8 +2,19 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
-const InfoItem = ({ icon, label, value, iconColor, minWidth = 100 }) => {
+const InfoItem = ({ icon, label, value, iconColor, minWidth = 100, iconSize = 'medium' }) => {
   const theme = useTheme();
+
+  const getIconSize = () => {
+    switch (iconSize) {
+      case 'small':
+        return 16;
+      case 'large':
+        return 24;
+      default:
+        return 18;
+    }
+  };
 
   return (
     <Box sx={{ 
@@ -15,7 +26,7 @@ const InfoItem = ({ icon, label, value, iconColor, minWidth = 100 }) => {
       border: `1px solid ${theme.palette.divider}`,
     }}>
       <Box sx={{ display: 'flex', alignItems: 'center', minWidth }}>
-        <Box sx={{ mr: 1, color: iconColor, fontSize: 18 }}>
+        <Box sx={{ mr: 1, color: iconColor, fontSize: getIconSize() }}>
           {icon}
         </Box>
         <Typography variant="body2" color="text.secondary" fontWeight="600">

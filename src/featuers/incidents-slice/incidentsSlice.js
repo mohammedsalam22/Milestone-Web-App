@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { 
   getIncidentsApi, 
   getIncidentByIdApi, 
+  getStudentIncidentsApi,
   createIncidentApi, 
   updateIncidentApi, 
   deleteIncidentApi 
@@ -32,6 +33,21 @@ export const fetchIncidentById = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.detail || 'Failed to fetch incident data.'
+      );
+    }
+  }
+);
+
+// Async thunk for fetching student incidents
+export const fetchStudentIncidents = createAsyncThunk(
+  'incidents/fetchStudentIncidents',
+  async (studentId, { rejectWithValue }) => {
+    try {
+      const data = await getStudentIncidentsApi(studentId);
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.detail || 'Failed to fetch student incidents.'
       );
     }
   }
@@ -85,6 +101,7 @@ export const deleteIncident = createAsyncThunk(
 const initialState = {
   incidents: [],
   selectedIncident: null,
+  studentIncidents: [],
   loading: false,
   error: null,
   filters: {
@@ -142,6 +159,20 @@ const incidentsSlice = createSlice({
       .addCase(fetchIncidentById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to fetch incident.';
+      })
+      // Fetch student incidents
+      .addCase(fetchStudentIncidents.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchStudentIncidents.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.studentIncidents = action.payload;
+      })
+      .addCase(fetchStudentIncidents.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to fetch student incidents.';
       })
       // Create incident
       .addCase(createIncident.pending, (state) => {

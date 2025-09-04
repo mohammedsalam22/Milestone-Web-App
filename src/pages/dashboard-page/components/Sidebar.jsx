@@ -26,6 +26,8 @@ import {
   Report as ReportIcon,
   CheckCircle as CheckCircleIcon,
   Grade as GradeIcon,
+  LocalOffer as DiscountIcon,
+  AttachMoney as FeeIcon,
 } from '@mui/icons-material';
 import { useTheme } from '../../../theme/ThemeProvider';
 import { useLocation, Link } from 'react-router-dom';
@@ -56,6 +58,8 @@ const Sidebar = ({ isCollapsed }) => {
     { name: 'posts', icon: ArticleIcon, href: '/posts' },
     { name: 'schedule', icon: CalendarIcon, href: '/schedule' },
     { name: 'marks', icon: GradeIcon, href: '/marks' },
+    { name: 'discounts', icon: DiscountIcon, href: '/discounts' },
+    { name: 'fees', icon: FeeIcon, href: '/fees' },
     { name: 'incidents', icon: ReportIcon, href: '/incidents' },
     { name: 'attendances', icon: CheckCircleIcon, href: '/attendances' },
     { name: 'placementDates', icon: AssignmentIcon, href: '/placement-dates' },
@@ -71,7 +75,7 @@ const Sidebar = ({ isCollapsed }) => {
   } else if (role === 'cooperator') {
     filteredNavigation = navigation.filter(item => ['students', 'staff', 'schedule', 'schoolStructure', 'marks', 'incidents', 'attendances', 'placementDates', 'studentRegistration', 'settings'].includes(item.name));
   } else if (role === 'receptionist') {
-    filteredNavigation = navigation.filter(item => ['students', 'staff', 'reports', 'schoolStructure', 'marks', 'incidents', 'attendances', 'placementDates', 'studentRegistration', 'settings'].includes(item.name));
+    filteredNavigation = navigation.filter(item => ['students', 'staff', 'reports', 'schoolStructure', 'marks', 'discounts', 'fees', 'incidents', 'attendances', 'placementDates', 'studentRegistration', 'settings'].includes(item.name));
   } // admin gets all
 
   return (

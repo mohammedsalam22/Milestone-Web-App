@@ -130,6 +130,14 @@ class Student {
   }
 
   /**
+   * Get student photo URL
+   * @returns {string|null}
+   */
+  getPhotoUrl() {
+    return this.card?.photo || this.card?.image || this.card?.avatar || null;
+  }
+
+  /**
    * Convert to plain object for API calls
    * @returns {Object}
    */

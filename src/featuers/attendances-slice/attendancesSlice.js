@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { 
   getAttendancesApi, 
   getAttendanceByIdApi, 
+  getStudentAttendancesApi,
   createAttendanceApi,
   createDailyAttendanceApi,
   updateAttendanceApi, 
@@ -32,6 +33,20 @@ export const fetchAttendanceById = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.detail || 'Failed to fetch absence record.'
+      );
+    }
+  }
+);
+
+export const fetchStudentAttendances = createAsyncThunk(
+  'attendances/fetchStudentAttendances',
+  async (studentId, { rejectWithValue }) => {
+    try {
+      const data = await getStudentAttendancesApi(studentId);
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.detail || 'Failed to fetch student attendance records.'
       );
     }
   }
@@ -96,6 +111,7 @@ export const deleteAttendance = createAsyncThunk(
 const initialState = {
   attendances: [],
   selectedAttendance: null,
+  studentAttendances: [],
   loading: false,
   error: null,
   filters: {
@@ -149,6 +165,19 @@ const attendancesSlice = createSlice({
         state.selectedAttendance = action.payload;
       })
       .addCase(fetchAttendanceById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Fetch student attendances
+      .addCase(fetchStudentAttendances.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchStudentAttendances.fulfilled, (state, action) => {
+        state.loading = false;
+        state.studentAttendances = action.payload;
+      })
+      .addCase(fetchStudentAttendances.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

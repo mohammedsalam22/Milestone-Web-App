@@ -8,6 +8,9 @@ export const getAttendancesApi = async (filters = {}) => {
   if (filters.date) {
     params.append('date', filters.date);
   }
+  if (filters.student) {
+    params.append('student', filters.student);
+  }
   const queryString = params.toString();
   const url = queryString ? `/api/school/attendances?${queryString}` : '/api/school/attendances';
   const response = await apiService.get(url);
@@ -16,6 +19,11 @@ export const getAttendancesApi = async (filters = {}) => {
 
 export const getAttendanceByIdApi = async (id) => {
   const response = await apiService.get(`/api/school/attendances/${id}`);
+  return response.data;
+};
+
+export const getStudentAttendancesApi = async (studentId) => {
+  const response = await apiService.get(`/api/school/attendances?student=${studentId}`);
   return response.data;
 };
 

@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { 
   getMarksApi, 
   getMarkByIdApi, 
+  getStudentMarksApi,
   createMarkApi,
   createMarksBulkApi,
   updateMarkApi
@@ -36,6 +37,20 @@ export const fetchMarkById = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.detail || 'Failed to fetch mark.'
+      );
+    }
+  }
+);
+
+export const fetchStudentMarks = createAsyncThunk(
+  'marks/fetchStudentMarks',
+  async (studentId, { rejectWithValue }) => {
+    try {
+      const data = await getStudentMarksApi(studentId);
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.detail || 'Failed to fetch student marks.'
       );
     }
   }
@@ -162,6 +177,7 @@ const initialState = {
   marks: [],
   studentsBySection: [],
   sectionsByGrade: [],
+  studentMarks: [],
   // For cooperators
   subjectsByGrade: [],
   studyStages: [],
@@ -255,6 +271,19 @@ const marksSlice = createSlice({
         state.selectedMark = action.payload;
       })
       .addCase(fetchMarkById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Fetch student marks
+      .addCase(fetchStudentMarks.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchStudentMarks.fulfilled, (state, action) => {
+        state.loading = false;
+        state.studentMarks = action.payload;
+      })
+      .addCase(fetchStudentMarks.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

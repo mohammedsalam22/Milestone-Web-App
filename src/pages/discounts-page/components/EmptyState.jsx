@@ -1,0 +1,99 @@
+import React from 'react';
+import {
+  Box,
+  Typography,
+  Button,
+  Paper,
+  useTheme,
+} from '@mui/material';
+import {
+  LocalOffer as DiscountIcon,
+  Add as AddIcon,
+  Clear as ClearIcon,
+} from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
+
+const EmptyState = ({
+  searchTerm,
+  typeFilter,
+  onCreateClick,
+  onClearFilters,
+  isRTL,
+}) => {
+  const { t } = useTranslation();
+  const theme = useTheme();
+
+  const hasFilters = searchTerm || typeFilter !== 'all';
+
+  return (
+    <Paper
+      sx={{
+        p: 6,
+        textAlign: 'center',
+        borderRadius: 2,
+        boxShadow: theme.shadows[1],
+        backgroundColor: theme.palette.background.paper,
+      }}
+    >
+      <Box sx={{ mb: 3 }}>
+        <DiscountIcon
+          sx={{
+            fontSize: 80,
+            color: theme.palette.text.secondary,
+            opacity: 0.5,
+          }}
+        />
+      </Box>
+
+      {hasFilters ? (
+        <>
+          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: theme.palette.text.primary }}>
+            {t('noDiscountsFound')}
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            {t('noDiscountsFoundDescription')}
+          </Typography>
+          <Button
+            variant="outlined"
+            startIcon={<ClearIcon />}
+            onClick={onClearFilters}
+            sx={{
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              px: 3,
+              py: 1,
+            }}
+          >
+            {t('clearFilters')}
+          </Button>
+        </>
+      ) : (
+        <>
+          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: theme.palette.text.primary }}>
+            {t('noDiscountsYet')}
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+            {t('noDiscountsYetDescription')}
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={onCreateClick}
+            sx={{
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              px: 3,
+              py: 1,
+            }}
+          >
+            {t('createFirstDiscount')}
+          </Button>
+        </>
+      )}
+    </Paper>
+  );
+};
+
+export default EmptyState;

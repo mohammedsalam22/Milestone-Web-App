@@ -25,6 +25,11 @@ export const getMarkByIdApi = async (id) => {
   return response.data;
 };
 
+export const getStudentMarksApi = async (studentId) => {
+  const response = await apiService.get(`/api/school/marks/?student=${studentId}`);
+  return response.data;
+};
+
 export const createMarkApi = async (data) => {
   const response = await apiService.post('/api/school/marks/', data);
   return response.data;
