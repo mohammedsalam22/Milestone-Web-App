@@ -307,99 +307,111 @@ const FinancialSection = ({ studentId }) => {
       </Box>
 
       {/* Financial Summary Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={3}>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ 
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            color: 'white',
-            borderRadius: 2,
-            boxShadow: 3
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
+            borderRadius: 1.5,
+            boxShadow: 1,
+            height: '100%'
           }}>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <AttachMoney sx={{ fontSize: 32, mr: 1 }} />
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <AttachMoney sx={{ fontSize: 20, mr: 1 }} />
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
                   Total Fees
                 </Typography>
               </Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                {formatCurrency(totalFeeValue)}
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                Sum of all fee values
-              </Typography>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  {formatCurrency(totalFeeValue)}
+                </Typography>
+                <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                  Sum of all fee values
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ 
-            background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            color: 'white',
-            borderRadius: 2,
-            boxShadow: 3
+            backgroundColor: theme.palette.secondary.main,
+            color: theme.palette.secondary.contrastText,
+            borderRadius: 1.5,
+            boxShadow: 1,
+            height: '100%'
           }}>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Discount sx={{ fontSize: 32, mr: 1 }} />
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Discount sx={{ fontSize: 20, mr: 1 }} />
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
                   Total Discounts
                 </Typography>
               </Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                {formatCurrency(totalDiscountValue)}
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                Sum of all discounts
-              </Typography>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  {formatCurrency(totalDiscountValue)}
+                </Typography>
+                <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                  Sum of all discounts
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ 
-            background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            color: 'white',
-            borderRadius: 2,
-            boxShadow: 3
+            backgroundColor: theme.palette.success.main,
+            color: theme.palette.success.contrastText,
+            borderRadius: 1.5,
+            boxShadow: 1,
+            height: '100%'
           }}>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Payment sx={{ fontSize: 32, mr: 1 }} />
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <Payment sx={{ fontSize: 20, mr: 1 }} />
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
                   Total Payments
                 </Typography>
               </Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                {formatCurrency(paidAmount)}
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                Total payments received
-              </Typography>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  {formatCurrency(paidAmount)}
+                </Typography>
+                <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                  Total payments received
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} sm={6} md={3}>
           <Card sx={{ 
-            background: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
-            color: 'white',
-            borderRadius: 2,
-            boxShadow: 3
+            backgroundColor: theme.palette.warning.main,
+            color: theme.palette.warning.contrastText,
+            borderRadius: 1.5,
+            boxShadow: 1,
+            height: '100%'
           }}>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <TrendingDown sx={{ fontSize: 32, mr: 1 }} />
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <TrendingDown sx={{ fontSize: 20, mr: 1 }} />
+                <Typography variant="body2" sx={{ fontWeight: 600 }}>
                   Remaining
                 </Typography>
               </Box>
-              <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-                {formatCurrency(remainingAmount)}
-              </Typography>
-              <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                Final Amount - Payments
-              </Typography>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
+                  {formatCurrency(remainingAmount)}
+                </Typography>
+                <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                  Final Amount - Payments
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>

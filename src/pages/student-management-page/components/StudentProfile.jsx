@@ -720,10 +720,6 @@ const StudentProfile = () => {
               </Box>
             </Box>
 
-            {/* Academic Section */}
-            <Box>
-              <AcademicSection student={student} />
-            </Box>
           </Box>
         </CardContent>
       </Card>
