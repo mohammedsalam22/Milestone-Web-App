@@ -7,6 +7,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { fetchAllDiscounts, createDiscount, updateDiscount, deleteDiscount } from '../../featuers/discounts-slice/discountsSlice';
+import { DiscountsSkeleton } from '../../components/skeletons';
 import {
   DiscountsHeader,
   DiscountsTable,
@@ -19,7 +20,7 @@ import {
 const DiscountsPage = () => {
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
-  const { discounts, loading, error } = useSelector((state) => state.discounts);
+  const { allDiscounts: discounts, loading, error } = useSelector((state) => state.discounts);
 
   const isRTL = i18n.language === 'ar';
 
@@ -150,7 +151,7 @@ const DiscountsPage = () => {
     return type === 'percent' ? t('percentage') : t('fixedAmount');
   };
 
-  const filteredAndSortedDiscounts = discounts
+  const filteredAndSortedDiscounts = (discounts || [])
     .filter(discount => {
       const matchesSearch = discount.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            discount.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -173,12 +174,8 @@ const DiscountsPage = () => {
     setTypeFilter('all');
   };
 
-  if (loading && discounts.length === 0) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-        <CircularProgress />
-      </Box>
-    );
+  if (loading && (!discounts || discounts.length === 0)) {
+    return <DiscountsSkeleton rows={8} />;
   }
 
   return (

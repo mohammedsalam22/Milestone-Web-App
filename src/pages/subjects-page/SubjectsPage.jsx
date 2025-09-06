@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { fetchSubjects, createSubject, updateSubject, deleteSubject } from '../../featuers/subjects-slice/subjectsSlice';
 import { fetchGrades } from '../../featuers/grades-slice/gradesSlice';
+import { SubjectsSkeleton } from '../../components/skeletons';
 import {
   SubjectsHeader,
   SubjectsTable,
@@ -192,11 +193,7 @@ const SubjectsPage = () => {
   };
 
   if (loading && subjects.length === 0) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <SubjectsSkeleton rows={10} />;
   }
 
   return (

@@ -90,7 +90,13 @@ const AttendancesHeader = ({
           InputLabelProps={{
             shrink: true,
           }}
-          sx={{ minWidth: 150, '& .MuiOutlinedInput-root': { borderRadius: 2 } }}
+          sx={{ 
+            minWidth: 150, 
+            '& .MuiOutlinedInput-root': { 
+              borderRadius: 2,
+              ...(isRTL && { direction: 'rtl' })
+            }
+          }}
         />
 
         <Button

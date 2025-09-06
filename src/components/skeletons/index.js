@@ -1,0 +1,13 @@
+export { default as StudentSkeleton } from './StudentSkeleton';
+export { default as StaffSkeleton } from './StaffSkeleton';
+export { default as SubjectsSkeleton } from './SubjectsSkeleton';
+export { default as StudyYearsSkeleton } from './StudyYearsSkeleton';
+export { default as SchoolStructuresSkeleton } from './SchoolStructuresSkeleton';
+export { default as PostsSkeleton } from './PostsSkeleton';
+export { default as ScheduleSkeleton } from './ScheduleSkeleton';
+export { default as PerformanceManagementSkeleton } from './PerformanceManagementSkeleton';
+export { default as DiscountsSkeleton } from './DiscountsSkeleton';
+export { default as FeesSkeleton } from './FeesSkeleton';
+export { default as IncidentsSkeleton } from './IncidentsSkeleton';
+export { default as PlacementTestsSkeleton } from './PlacementTestsSkeleton';
+export { default as StudentRegistrationSkeleton } from './StudentRegistrationSkeleton';

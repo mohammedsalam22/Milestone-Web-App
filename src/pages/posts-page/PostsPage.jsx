@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { PostsSkeleton } from '../../components/skeletons';
 
 const PostsPage = () => {
   const dispatch = useDispatch();
@@ -41,11 +42,7 @@ const PostsPage = () => {
   };
 
   if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <PostsSkeleton posts={3} />;
   }
 
   if (error) {

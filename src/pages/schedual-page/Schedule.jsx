@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Box, CircularProgress, Alert, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { Box, CircularProgress, Alert, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, useTheme } from '@mui/material';
 
 import {
   fetchAllSchedules,
@@ -19,6 +18,7 @@ import SectionSelector from './components/SectionSelector';
 import ScheduleGrid from './components/ScheduleGrid';
 import PeriodDialog from './components/PeriodDialog';
 import ScheduleHeader from './components/ScheduleHeader';
+import { ScheduleSkeleton } from '../../components/skeletons';
 
 
 
@@ -173,20 +173,20 @@ const Schedule = () => {
 
   return (
     <Box sx={{
-       padding: theme.spacing(4),
+      padding: theme.spacing(3),
       backgroundColor: theme.palette.background.default,
-       minHeight: '100vh',
-     }}>
+      minHeight: '100vh',
+    }}>
       {/* Page Header with Section Selector */}
       <Box sx={{ 
-        mb: 4,
         display: 'flex',
-        alignItems: 'center',
         justifyContent: 'space-between',
+        alignItems: 'center',
+        mb: 2,
         flexWrap: 'wrap',
         gap: 2
       }}>
-        <Typography variant="h4" component="h1">
+        <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
           Schedule
         </Typography>
         
@@ -214,26 +214,22 @@ const Schedule = () => {
       {/* Main Content */}
       {selectedSection && (
         <Box sx={{ 
+          border: 1, 
+          borderColor: theme.palette.divider, 
+          borderRadius: 1,
           backgroundColor: theme.palette.background.paper,
-          borderRadius: 3,
-          boxShadow: theme.shadows[1],
-          overflow: 'hidden',
-          border: `1px solid ${theme.palette.divider}`
+          overflow: 'hidden'
         }}>
           <ScheduleHeader
             selectedSection={selectedSection}
-            onSave={handleSave}
             onRefresh={handleRefresh}
             loading={loading}
             error={error}
             onCloseError={handleCloseError}
-            hasChanges={false}
           />
 
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 6 }}>
-              <CircularProgress size={40} />
-            </Box>
+            <ScheduleSkeleton />
           ) : (
             <ScheduleGrid
               schedules={selectedSectionSchedules}
@@ -249,18 +245,18 @@ const Schedule = () => {
       {/* Empty States */}
       {!selectedSection && sections?.length > 0 && !sectionsLoading && (
         <Box sx={{ 
-          mt: 6, 
+          mt: 4, 
           textAlign: 'center',
-          backgroundColor: theme.palette.background.paper,
-          borderRadius: 3,
-          p: 8,
-          boxShadow: theme.shadows[1],
-          border: `1px solid ${theme.palette.divider}`
+          p: 4,
+          border: 1,
+          borderColor: theme.palette.divider,
+          borderRadius: 1,
+          backgroundColor: theme.palette.background.paper
         }}>
-          <Typography variant="h5" color="textSecondary" gutterBottom sx={{ fontWeight: 500 }}>
+          <Typography variant="h6" color="textSecondary" gutterBottom>
             Select a Section
           </Typography>
-          <Typography variant="body1" color="textSecondary" sx={{ opacity: 0.8 }}>
+          <Typography variant="body2" color="textSecondary">
             Choose a section from the dropdown above to view and manage its schedule
           </Typography>
         </Box>
@@ -268,18 +264,18 @@ const Schedule = () => {
 
       {!sections?.length && !sectionsLoading && !loading && (
         <Box sx={{ 
-          mt: 6, 
+          mt: 4, 
           textAlign: 'center',
-          backgroundColor: theme.palette.background.paper,
-          borderRadius: 3,
-          p: 8,
-          boxShadow: theme.shadows[1],
-          border: `1px solid ${theme.palette.divider}`
+          p: 4,
+          border: 1,
+          borderColor: theme.palette.divider,
+          borderRadius: 1,
+          backgroundColor: theme.palette.background.paper
         }}>
-          <Typography variant="h5" color="textSecondary" gutterBottom sx={{ fontWeight: 500 }}>
+          <Typography variant="h6" color="textSecondary" gutterBottom>
             No Sections Available
           </Typography>
-          <Typography variant="body1" color="textSecondary" sx={{ opacity: 0.8 }}>
+          <Typography variant="body2" color="textSecondary">
             No sections are currently available. Please check your API connection or create sections first.
           </Typography>
         </Box>
@@ -300,18 +296,15 @@ const Schedule = () => {
 
        {/* Delete Confirmation Dialog */}
        <Dialog open={deleteDialogOpen} onClose={handleCancelDelete} maxWidth="sm" fullWidth>
-         <DialogTitle sx={{ 
-           backgroundColor: theme.palette.error.light,
-           color: theme.palette.error.contrastText
-         }}>
+         <DialogTitle>
            Delete Schedule Period
          </DialogTitle>
-         <DialogContent sx={{ pt: 3 }}>
+         <DialogContent>
            <Typography variant="body1" gutterBottom>
              Are you sure you want to delete this schedule period?
            </Typography>
                        {scheduleToDelete && (
-              <Box sx={{ mt: 2, p: 2, backgroundColor: theme.palette.grey[50], borderRadius: 1 }}>
+              <Box sx={{ mt: 2, p: 2, border: 1, borderColor: 'divider', borderRadius: 1 }}>
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>
                   {scheduleToDelete.teacher?.subjects?.[0]?.name || 'No Subject'}
                 </Typography>
@@ -321,20 +314,14 @@ const Schedule = () => {
                 <Typography variant="caption" display="block" color="textSecondary">
                   {scheduleToDelete.day} • {scheduleToDelete.start_time || '00:00:00'} - {scheduleToDelete.end_time || '00:00:00'}
                 </Typography>
-                {/* Debug info */}
-                <Box sx={{ mt: 1, p: 1, backgroundColor: theme.palette.grey[100], borderRadius: 0.5, fontSize: '10px' }}>
-                  <Typography variant="caption" color="textSecondary">
-                    Debug: Teacher ID: {scheduleToDelete.teacher?.id}, Section ID: {scheduleToDelete.section?.id}
-                  </Typography>
-                </Box>
               </Box>
             )}
            <Typography variant="body2" color="error" sx={{ mt: 2 }}>
              This action cannot be undone.
       </Typography>
          </DialogContent>
-         <DialogActions sx={{ p: 3 }}>
-           <Button onClick={handleCancelDelete} color="inherit">
+         <DialogActions>
+           <Button onClick={handleCancelDelete}>
              Cancel
            </Button>
            <Button

@@ -29,6 +29,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { fetchStudyYears, createStudyYear, updateStudyYear, deleteStudyYear } from '../../featuers/study-years-slice/studyYearsSlice';
+import { StudyYearsSkeleton } from '../../components/skeletons';
 
 const StudyYearsPage = () => {
   const dispatch = useDispatch();
@@ -116,11 +117,7 @@ const StudyYearsPage = () => {
   };
 
   if (loading && studyYears.length === 0) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <StudyYearsSkeleton cards={8} />;
   }
 
   return (

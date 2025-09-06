@@ -9,7 +9,6 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 
 const SectionSelector = ({ 
   sections, 
@@ -18,8 +17,6 @@ const SectionSelector = ({
   loading, 
   error 
 }) => {
-  const theme = useTheme();
-
   const handleChange = (event) => {
     const sectionId = event.target.value;
     const section = sections.find(s => s.id === sectionId);
@@ -28,8 +25,8 @@ const SectionSelector = ({
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-        <CircularProgress size={24} />
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+        <CircularProgress size={20} />
       </Box>
     );
   }
@@ -43,24 +40,18 @@ const SectionSelector = ({
   }
 
   return (
-    <Box sx={{ minWidth: 300, mb: 3 }}>
+    <Box sx={{ minWidth: 250 }}>
       <FormControl fullWidth>
-        <InputLabel id="section-selector-label">Select Section</InputLabel>
+        <InputLabel>Select Section</InputLabel>
         <Select
-          labelId="section-selector-label"
           value={selectedSection?.id || ''}
           onChange={handleChange}
           label="Select Section"
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              borderRadius: 2,
-            },
-          }}
         >
           {sections.map((section) => (
             <MenuItem key={section.id} value={section.id}>
               <Box>
-                <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                <Typography variant="body2">
                   Section {section.name}
                 </Typography>
                 <Typography variant="caption" color="textSecondary">

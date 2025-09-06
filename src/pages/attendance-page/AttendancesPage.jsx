@@ -410,7 +410,7 @@ const AttendancesPage = () => {
          selectedStudyStage={selectedStudyStage}
          selectedGrade={selectedGrade}
          selectedSection={selectedSection}
-         title={t('filterBySchoolStructure')}
+         title={t('selectSchoolStructure')}
        />
     </Box>
   );

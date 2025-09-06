@@ -37,6 +37,7 @@ import {
   EditMarkDialog,
 } from './components';
 import PerformanceStructureFilters from './components/PerformanceStructureFilters';
+import { PerformanceManagementSkeleton } from '../../components/skeletons';
 
 const MarksPage = () => {
   const dispatch = useDispatch();
@@ -507,9 +508,7 @@ const MarksPage = () => {
       ) : null}
 
       {loading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-          <CircularProgress />
-        </Box>
+        <PerformanceManagementSkeleton rows={8} />
       ) : combinedData.length > 0 ? (
                <MarksTable
           data={combinedData}

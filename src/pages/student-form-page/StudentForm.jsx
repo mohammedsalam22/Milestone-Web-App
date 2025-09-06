@@ -16,6 +16,7 @@ import {
 import { useTheme } from '@mui/material/styles';
 import { createStudentDirect, updateStudent } from '../../featuers/students-slice/studentsSlice';
 import { fetchSections } from '../../featuers/sections-slice/sectionsSlice';
+import { StudentRegistrationSkeleton } from '../../components/skeletons';
 import AccountInformation from './components/AccountInformation';
 import StudentPersonalInformation from './components/StudentPersonalInformation';
 import ParentInformation from './components/ParentInformation';
@@ -357,43 +358,50 @@ const StudentForm = ({ isEditing = false, studentData = null, onCancel, onSucces
         </Box>
              )}
 
-       {/* Stepper */}
-       <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 4 }}>
-         <Stepper activeStep={activeStep} alternativeLabel>
-           {steps.map((label) => (
-             <Step key={label}>
-               <StepLabel sx={{ 
-                 '& .MuiStepLabel-label': {
-                   fontSize: '16px',
-                   fontWeight: 500
-                 }
-               }}>
-                 {label}
-               </StepLabel>
-             </Step>
-           ))}
-         </Stepper>
-         <Box sx={{ mt: 3, textAlign: 'center' }}>
-           <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
-             Step {activeStep + 1} of {steps.length} - {Math.round(((activeStep + 1) / steps.length) * 100)}% Complete
-           </Typography>
-         </Box>
-       </Box>
+      {/* Loading State */}
+      {loading ? (
+        <StudentRegistrationSkeleton />
+      ) : (
+        <>
+          {/* Stepper */}
+          <Box sx={{ maxWidth: 1200, mx: 'auto', mb: 4 }}>
+            <Stepper activeStep={activeStep} alternativeLabel>
+              {steps.map((label) => (
+                <Step key={label}>
+                  <StepLabel sx={{ 
+                    '& .MuiStepLabel-label': {
+                      fontSize: '16px',
+                      fontWeight: 500
+                    }
+                  }}>
+                    {label}
+                  </StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+            <Box sx={{ mt: 3, textAlign: 'center' }}>
+              <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
+                Step {activeStep + 1} of {steps.length} - {Math.round(((activeStep + 1) / steps.length) * 100)}% Complete
+              </Typography>
+            </Box>
+          </Box>
 
-       {/* Form Content */}
-       <Box sx={{ mb: 6 }}>
-         {renderStepContent(activeStep)}
-       </Box>
+          {/* Form Content */}
+          <Box sx={{ mb: 6 }}>
+            {renderStepContent(activeStep)}
+          </Box>
 
-             {/* Confirmation Dialog */}
-       <ConfirmationDialog
-         showConfirmDialog={showConfirmDialog}
-         setShowConfirmDialog={setShowConfirmDialog}
-         handleSubmit={handleSubmit}
-         isEditing={isEditing}
-         formData={formData}
-         sections={sections}
-       />
+          {/* Confirmation Dialog */}
+          <ConfirmationDialog
+            showConfirmDialog={showConfirmDialog}
+            setShowConfirmDialog={setShowConfirmDialog}
+            handleSubmit={handleSubmit}
+            isEditing={isEditing}
+            formData={formData}
+            sections={sections}
+          />
+        </>
+      )}
     </Box>
   );
 };

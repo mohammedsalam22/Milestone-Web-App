@@ -36,6 +36,7 @@ import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { fetchStudents } from '../../featuers/students-slice/studentsSlice';
 import Student from '../../models/Student';
+import { StudentSkeleton } from '../../components/skeletons';
 
 const Students = () => {
   const theme = useTheme();
@@ -113,18 +114,7 @@ const Students = () => {
   };
 
   if (loading) {
-    return (
-      <Box sx={{
-        padding: theme.spacing(3),
-        backgroundColor: theme.palette.background.default,
-        minHeight: '100vh',
-      }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Student Management
-        </Typography>
-        <Skeleton variant="rectangular" height={400} />
-      </Box>
-    );
+    return <StudentSkeleton rows={10} />;
   }
 
   return (

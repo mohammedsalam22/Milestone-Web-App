@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Box, Typography, Alert, Skeleton } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { fetchPlacementTests } from '../../featuers/placement-tests-slice/placementTestsSlice';
+import { PlacementTestsSkeleton } from '../../components/skeletons';
 import PlacementTestsHeader from './components/PlacementTestsHeader';
 import PlacementTestsTable from './components/PlacementTestsTable';
 
@@ -16,18 +17,7 @@ const PlacementTestsPage = () => {
   }, [dispatch]);
 
   if (loading) {
-    return (
-      <Box sx={{
-        padding: theme.spacing(3),
-        backgroundColor: theme.palette.background.default,
-        minHeight: '100vh',
-      }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Student Registration
-        </Typography>
-        <Skeleton variant="rectangular" height={400} />
-      </Box>
-    );
+    return <PlacementTestsSkeleton rows={8} />;
   }
 
   return (

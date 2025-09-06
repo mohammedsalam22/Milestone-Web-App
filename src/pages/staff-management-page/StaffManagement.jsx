@@ -38,6 +38,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { fetchStaff } from '../../featuers/staff-slice/staffSlice';
+import { StaffSkeleton } from '../../components/skeletons';
 
 const StaffManagement = () => {
   const dispatch = useDispatch();
@@ -126,16 +127,7 @@ const StaffManagement = () => {
   };
 
   if (loading && staff.length === 0) {
-    return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '50vh' 
-      }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <StaffSkeleton rows={10} />;
   }
 
   return (

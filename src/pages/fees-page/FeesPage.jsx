@@ -7,6 +7,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { fetchAllFees, createFee, updateFee, deleteFee } from '../../featuers/fees-slice/feesSlice';
+import { FeesSkeleton } from '../../components/skeletons';
 import {
   FeesHeader,
   FeesTable,
@@ -19,7 +20,7 @@ import {
 const FeesPage = () => {
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
-  const { fees, loading, error } = useSelector((state) => state.fees);
+  const { allFees: fees, loading, error } = useSelector((state) => state.fees);
 
   const isRTL = i18n.language === 'ar';
 
@@ -161,7 +162,7 @@ const FeesPage = () => {
     return isAvailable ? t('available') : t('notAvailable');
   };
 
-  const filteredAndSortedFees = fees
+  const filteredAndSortedFees = (fees || [])
     .filter(fee => {
       const matchesSearch = fee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            fee.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -191,12 +192,8 @@ const FeesPage = () => {
     setInstallmentFilter('all');
   };
 
-  if (loading && fees.length === 0) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-        <CircularProgress />
-      </Box>
-    );
+  if (loading && (!fees || fees.length === 0)) {
+    return <FeesSkeleton rows={8} />;
   }
 
   return (

@@ -15,7 +15,6 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
 import { useScheduleData } from './useScheduleData';
 
 const PeriodDialog = ({ 
@@ -29,7 +28,6 @@ const PeriodDialog = ({
   sectionId = null,
   mode = 'add' 
 }) => {
-  const theme = useTheme();
   const { teachers, sections, loading: dataLoading, error: dataError } = useScheduleData();
   
   const [formData, setFormData] = useState({
@@ -120,14 +118,10 @@ const PeriodDialog = ({
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ 
-        backgroundColor: theme.palette.background.paper,
-        color: theme.palette.text.primary,
-        borderBottom: `1px solid ${theme.palette.divider}`
-      }}>
+      <DialogTitle>
         {mode === 'add' ? 'Add Schedule Period' : 'Edit Schedule Period'}
       </DialogTitle>
-      <DialogContent sx={{ pt: 3 }}>
+      <DialogContent>
         {dataError && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {dataError}
@@ -146,21 +140,18 @@ const PeriodDialog = ({
         </Box>
         
         {dataLoading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
             <CircularProgress />
           </Box>
         ) : (
           <>
-            {console.log('Available teachers:', teachers.map(t => ({ id: t.id, name: t.user?.username })))}
-            {console.log('Available sections:', sections.map(s => ({ id: s.id, name: s.name })))}
-            {console.log('Current form data:', formData)}
             <FormControl fullWidth margin="normal" required>
-               <InputLabel>Teacher</InputLabel>
-               <Select
-                 value={formData.teacher_id || ''}
-                 onChange={handleInputChange('teacher_id')}
-                 label="Teacher"
-               >
+              <InputLabel>Teacher</InputLabel>
+              <Select
+                value={formData.teacher_id || ''}
+                onChange={handleInputChange('teacher_id')}
+                label="Teacher"
+              >
                 {teachers.map((teacher) => (
                   <MenuItem key={teacher.id} value={teacher.id}>
                     <Box>
@@ -176,16 +167,16 @@ const PeriodDialog = ({
               </Select>
             </FormControl>
             
-                         <FormControl fullWidth margin="normal" required>
-               <InputLabel>Section</InputLabel>
-               <Select
-                 value={formData.section_id || ''}
-                 onChange={handleInputChange('section_id')}
-                 label="Section"
-                 disabled={mode === 'edit'}
-               >
+            <FormControl fullWidth margin="normal" required>
+              <InputLabel>Section</InputLabel>
+              <Select
+                value={formData.section_id || ''}
+                onChange={handleInputChange('section_id')}
+                label="Section"
+                disabled={mode === 'edit'}
+              >
                 {sections
-                  .filter(section => section.id === sectionId) // Only show the selected section
+                  .filter(section => section.id === sectionId)
                   .map((section) => (
                     <MenuItem key={section.id} value={section.id}>
                       <Box>
@@ -225,22 +216,22 @@ const PeriodDialog = ({
           </>
         )}
       </DialogContent>
-      <DialogActions sx={{ p: 3 }}>
-        <Button onClick={handleClose} color="inherit">
+      <DialogActions>
+        <Button onClick={handleClose}>
           Cancel
         </Button>
-                 <Button
-           onClick={handleSave}
-           variant="contained"
-           disabled={
-             dataLoading || 
-             !formData.teacher_id || 
-             (mode === 'add' && !formData.section_id) || 
-             (mode === 'add' && !formData.day) || 
-             !formData.start_time || 
-             !formData.end_time
-           }
-         >
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          disabled={
+            dataLoading || 
+            !formData.teacher_id || 
+            (mode === 'add' && !formData.section_id) || 
+            (mode === 'add' && !formData.day) || 
+            !formData.start_time || 
+            !formData.end_time
+          }
+        >
           {mode === 'add' ? 'Add' : 'Save'}
         </Button>
       </DialogActions>

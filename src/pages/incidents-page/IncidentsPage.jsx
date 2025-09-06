@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { fetchIncidents, createIncident, updateIncident, deleteIncident } from '../../featuers/incidents-slice/incidentsSlice';
 import { fetchSections } from '../../featuers/sections-slice/sectionsSlice';
 import { fetchStudents } from '../../featuers/students-slice/studentsSlice';
+import { IncidentsSkeleton } from '../../components/skeletons';
 import {
   IncidentsHeader,
   IncidentsTable,
@@ -126,11 +127,7 @@ const IncidentsPage = () => {
   });
 
   if (loading && incidents.length === 0) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
-        <CircularProgress />
-      </Box>
-    );
+    return <IncidentsSkeleton rows={8} />;
   }
 
   return (

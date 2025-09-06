@@ -8,15 +8,12 @@ import {
   TableRow,
   Typography,
   Box,
-  Chip,
   IconButton,
   Tooltip,
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles';
 
 const ScheduleGrid = ({ schedules, selectedSection, onAddPeriod, onEditPeriod, onDeletePeriod }) => {
-  const theme = useTheme();
 
   const days = ['sun', 'mon', 'tue', 'wed', 'thu'];
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
@@ -51,157 +48,77 @@ const ScheduleGrid = ({ schedules, selectedSection, onAddPeriod, onEditPeriod, o
   }
 
   return (
-    <Box sx={{ overflow: 'hidden' }}>
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
+    <TableContainer>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell sx={{ fontWeight: 600, minWidth: 120 }}>
+              Day
+            </TableCell>
+            {periods.map((period) => (
               <TableCell
-                sx={{
-                  backgroundColor: theme.palette.background.paper,
-                  color: theme.palette.text.primary,
-                  fontWeight: 600,
-                  minWidth: 120,
-                  py: 2.5,
-                  fontSize: '0.875rem',
-                  borderBottom: `2px solid ${theme.palette.divider}`,
-                }}
+                key={period.display}
+                align="center"
+                sx={{ fontWeight: 600, minWidth: 150 }}
               >
-                Day
+                {period.display}
               </TableCell>
-              {periods.map((period) => (
-                <TableCell
-                  key={period.display}
-                  align="center"
-                  sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    color: theme.palette.text.primary,
-                    fontWeight: 600,
-                    minWidth: 150,
-                    py: 2.5,
-                    fontSize: '0.875rem',
-                    borderBottom: `2px solid ${theme.palette.divider}`,
-                  }}
-                >
-                  {period.display}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {days.map((day, dayIndex) => (
-              <TableRow key={day} hover>
-                <TableCell
-                  sx={{
-                    backgroundColor: theme.palette.background.default,
-                    fontWeight: 600,
-                    borderRight: `1px solid ${theme.palette.divider}`,
-                    py: 2.5,
-                    fontSize: '0.875rem',
-                    width: 120,
-                  }}
-                >
-                  <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 600 }}>
-                    {dayNames[dayIndex]}
-                  </Typography>
-                </TableCell>
-                {periods.map((period) => {
-                  const schedule = getScheduleForTimeSlot(day, period.start);
-                  return (
-                    <TableCell
-                      key={`${day}-${period.start}`}
-                      align="center"
-                      sx={{
-                        minHeight: 100,
-                        position: 'relative',
-                        border: `1px solid ${theme.palette.divider}`,
-                        py: 1,
-                        px: 0.5,
-                      }}
-                    >
-                      {schedule ? (
-                        <Box
-                          sx={{
-                            p: 2,
-                            backgroundColor: theme.palette.background.paper,
-                            borderRadius: 2,
-                            position: 'relative',
-                            border: `1px solid ${theme.palette.divider}`,
-                            transition: 'all 0.2s ease-in-out',
-                            '&:hover': {
-                              backgroundColor: theme.palette.action.hover,
-                              transform: 'translateY(-2px)',
-                              boxShadow: theme.shadows[2],
-                            },
-                          }}
-                        >
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                            <Box sx={{ flex: 1, cursor: 'pointer' }} onClick={() => onEditPeriod(schedule)}>
-                              <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
-                                {schedule.teacher?.subjects?.[0]?.name || 'No Subject'}
-                              </Typography>
-                              <Typography variant="caption" display="block" sx={{ mb: 1, opacity: 0.8 }}>
-                                {schedule.teacher?.username || 'Unknown Teacher'}
-                              </Typography>
-                              <Typography variant="caption" display="block" sx={{ opacity: 0.7 }}>
-                                Section {schedule.section?.name || 'Unknown'}
-                              </Typography>
-                            </Box>
-                            <Tooltip title="Delete Period">
-                              <IconButton
-                                size="small"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  console.log('Delete button clicked for schedule:', schedule);
-                                  onDeletePeriod(schedule);
-                                }}
-                                sx={{
-                                  color: theme.palette.error.main,
-                                  p: 0.5,
-                                  '&:hover': {
-                                    backgroundColor: theme.palette.error.light,
-                                    color: theme.palette.error.contrastText,
-                                  },
-                                }}
-                              >
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {days.map((day, dayIndex) => (
+            <TableRow key={day}>
+              <TableCell sx={{ fontWeight: 600, width: 120 }}>
+                {dayNames[dayIndex]}
+              </TableCell>
+              {periods.map((period) => {
+                const schedule = getScheduleForTimeSlot(day, period.start);
+                return (
+                  <TableCell
+                    key={`${day}-${period.start}`}
+                    align="center"
+                    sx={{ minHeight: 80, position: 'relative' }}
+                  >
+                    {schedule ? (
+                      <Box sx={{ p: 1, border: 1, borderColor: 'divider', borderRadius: 1 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <Box sx={{ flex: 1, cursor: 'pointer' }} onClick={() => onEditPeriod(schedule)}>
+                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                              {schedule.teacher?.subjects?.[0]?.name || 'No Subject'}
+                            </Typography>
+                            <Typography variant="caption" display="block">
+                              {schedule.teacher?.username || 'Unknown Teacher'}
+                            </Typography>
                           </Box>
-                        </Box>
-                      ) : (
-                        <Tooltip title="Add Period">
                           <IconButton
                             size="small"
-                            onClick={() => onAddPeriod(day, period.start, period.end)}
-                            sx={{
-                              color: theme.palette.text.secondary,
-                              border: `2px dashed ${theme.palette.divider}`,
-                              borderRadius: 2,
-                              width: 48,
-                              height: 48,
-                              transition: 'all 0.2s ease-in-out',
-                              '&:hover': {
-                                color: theme.palette.primary.main,
-                                borderColor: theme.palette.primary.main,
-                                backgroundColor: theme.palette.action.hover,
-                                transform: 'scale(1.05)',
-                              },
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDeletePeriod(schedule);
                             }}
                           >
-                            <AddIcon />
+                            <DeleteIcon fontSize="small" />
                           </IconButton>
-                        </Tooltip>
-                      )}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
+                        </Box>
+                      </Box>
+                    ) : (
+                      <IconButton
+                        size="small"
+                        onClick={() => onAddPeriod(day, period.start, period.end)}
+                        sx={{ border: 1, borderColor: 'divider', borderRadius: 1 }}
+                      >
+                        <AddIcon />
+                      </IconButton>
+                    )}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
 

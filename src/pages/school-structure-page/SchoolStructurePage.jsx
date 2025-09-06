@@ -39,6 +39,7 @@ import {
   deleteSection,
 } from '../../featuers/sections-slice/sectionsSlice';
 import { fetchStudyYears } from '../../featuers/study-years-slice/studyYearsSlice';
+import { SchoolStructuresSkeleton } from '../../components/skeletons';
 
 // Import extracted components
 import SchoolStructureHeader from './components/SchoolStructureHeader';
@@ -282,11 +283,7 @@ const SchoolStructurePage = () => {
 
   // Loading state
   if (studyStagesLoading || gradesLoading || sectionsLoading) {
-    return (
-      <Box sx={{ p: 3, textAlign: 'center' }}>
-        <Alert severity="info">{t('loading')}</Alert>
-      </Box>
-    );
+    return <SchoolStructuresSkeleton accordions={3} />;
   }
 
   return (

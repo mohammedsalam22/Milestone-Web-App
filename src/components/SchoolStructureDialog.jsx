@@ -48,7 +48,7 @@ const SchoolStructureDialog = ({
   selectedStudyStage,
   selectedGrade,
   selectedSection,
-  title = 'Select School Structure',
+  title,
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();

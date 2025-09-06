@@ -283,6 +283,11 @@ const DailyAttendancePage = () => {
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
+              sx={{
+                ...(isRTL && { 
+                  '& .MuiOutlinedInput-root': { direction: 'rtl' }
+                })
+              }}
             />
           </Grid>
           <Grid item xs={12} sm={12} md={4}>
