@@ -1,4 +1,5 @@
 import apiService from './apiService';
+import { getFileUrl } from './baseUrl';
 
 const PROGRAMS_ENDPOINT = 'api/landingpage/programs';
 
@@ -49,7 +50,7 @@ export const programsAPI = {
   deleteProgram: (id) => apiService.delete(`${PROGRAMS_ENDPOINT}/${id}`),
 
   getImageUrl: (imagePath) => {
-    return `http://10.218.65.81:8000/storage/${imagePath}`;
+    return getFileUrl(imagePath);
   },
 };
 

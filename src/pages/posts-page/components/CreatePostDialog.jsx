@@ -146,6 +146,7 @@ const CreatePostDialog = ({ open, onClose, onSuccess }) => {
       // Only include section_ids for private posts
       if (!formData.is_public) {
         postData.section_ids = formData.section_ids;
+        console.log('Sending private post with section_ids:', formData.section_ids);
       }
 
       // Only include attachments if there are files
@@ -215,7 +216,7 @@ const CreatePostDialog = ({ open, onClose, onSuccess }) => {
         justifyContent: 'space-between',
         alignItems: 'center',
       }}>
-        <Typography variant="h5" sx={{ fontWeight: 600 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600 }}>
           {t('createNewPost')}
         </Typography>
         <IconButton
@@ -317,7 +318,7 @@ const CreatePostDialog = ({ open, onClose, onSuccess }) => {
                     return (
                       <Chip
                         key={value}
-                        label={section ? section.name : value}
+                        label={section ? `${section.name} (${section.grade?.name})` : value}
                         size="small"
                         sx={{ background: theme.palette.primary.light, color: 'white' }}
                       />
@@ -328,7 +329,14 @@ const CreatePostDialog = ({ open, onClose, onSuccess }) => {
             >
               {sections.map((section) => (
                 <MenuItem key={section.id} value={section.id}>
-                  {section.name}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                      {section.name}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                      {section.grade?.name} - {section.grade?.study_stage?.name}
+                    </Typography>
+                  </Box>
                 </MenuItem>
               ))}
             </Select>

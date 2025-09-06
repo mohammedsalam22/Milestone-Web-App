@@ -1,4 +1,5 @@
 import apiService from './apiService';
+import { getFileUrl } from './baseUrl';
 
 const POSTS_ENDPOINT = 'api/posts/posts';
 
@@ -10,20 +11,33 @@ export const postsAPI = {
   createPost: (postData) => {
     const formData = new FormData();
     
+    console.log('API: Creating post with data:', postData);
+    console.log('API: is_public value:', postData.is_public, 'type:', typeof postData.is_public);
+    
     formData.append('title', postData.title);
     formData.append('text', postData.text);
-    formData.append('is_public', postData.is_public);
+    formData.append('is_public', postData.is_public ? 'true' : 'false');
     
     if (postData.section_ids && postData.section_ids.length > 0) {
+      console.log('API: Adding section_ids to FormData:', postData.section_ids);
       postData.section_ids.forEach((sectionId, index) => {
-        formData.append(`section_id[${index}]`, sectionId);
+        formData.append(`section_ids[${index}]`, parseInt(sectionId));
+        console.log(`API: Added section_ids[${index}] = ${parseInt(sectionId)}`);
       });
+    } else {
+      console.log('API: No section_ids provided or empty array');
     }
     
     if (postData.attachments && postData.attachments.length > 0) {
       postData.attachments.forEach((file, index) => {
         formData.append(`attachments[${index}]file`, file);
       });
+    }
+
+    // Debug: Log all FormData entries
+    console.log('API: FormData entries:');
+    for (let [key, value] of formData.entries()) {
+      console.log(`  ${key}: ${value}`);
     }
 
     return apiService.post(POSTS_ENDPOINT, formData, {
@@ -38,11 +52,12 @@ export const postsAPI = {
     
     formData.append('title', postData.title);
     formData.append('text', postData.text);
-    formData.append('is_public', postData.is_public);
+    formData.append('is_public', postData.is_public ? 'true' : 'false');
     
     if (postData.section_ids && postData.section_ids.length > 0) {
+      // Send section_ids as an array of integers
       postData.section_ids.forEach((sectionId, index) => {
-        formData.append(`section_id[${index}]`, sectionId);
+        formData.append(`section_ids[${index}]`, parseInt(sectionId));
       });
     }
     
@@ -62,7 +77,7 @@ export const postsAPI = {
   deletePost: (id) => apiService.delete(`${POSTS_ENDPOINT}/${id}`),
 
   getFileUrl: (filePath) => {
-    return `http://10.218.65.81:8000/storage/${filePath}`;
+    return getFileUrl(filePath);
   },
 
   addComment: (commentData) => {

@@ -29,6 +29,7 @@ import {
 } from '@mui/icons-material';
 import { useTheme } from '../../../theme/ThemeProvider';
 import { useTranslation } from 'react-i18next';
+import { getFileUrl } from '../../../api/baseUrl';
 import { createActivity, updateActivity, clearError } from '../../../featuers/activities-slice/activitiesSlice';
 
 const CreateEditActivityDialog = ({ open, onClose, activity, isEdit }) => {
@@ -62,8 +63,8 @@ const CreateEditActivityDialog = ({ open, onClose, activity, isEdit }) => {
           image: null,
           videos: [],
         });
-        setImagePreview(activity.image ? `http://127.0.0.1:8000/storage/${activity.image}` : '');
-        setVideoPreviews(activity.videos ? activity.videos.map(video => `http://127.0.0.1:8000/storage/${video}`) : []);
+        setImagePreview(activity.image ? getFileUrl(activity.image) : '');
+        setVideoPreviews(activity.videos ? activity.videos.map(video => getFileUrl(video)) : []);
       } else {
         setFormData({
           title: '',

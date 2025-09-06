@@ -1,4 +1,5 @@
 import apiService from './apiService';
+import { getFileUrl } from './baseUrl';
 
 const ACTIVITIES_ENDPOINT = 'api/landingpage/activities';
 
@@ -63,11 +64,11 @@ export const activitiesAPI = {
   deleteActivity: (id) => apiService.delete(`${ACTIVITIES_ENDPOINT}/${id}`),
 
   getImageUrl: (imagePath) => {
-    return `http://10.218.65.81:8000/storage/${imagePath}`;
+    return getFileUrl(imagePath);
   },
 
   getVideoUrl: (videoPath) => {
-    return `http://10.218.65.81:8000/storage/${videoPath}`;
+    return getFileUrl(videoPath);
   },
 };
 

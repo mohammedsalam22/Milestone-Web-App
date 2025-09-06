@@ -23,6 +23,7 @@ import {
 } from '@mui/icons-material';
 import { useTheme } from '../../../theme/ThemeProvider';
 import { useTranslation } from 'react-i18next';
+import { getFileUrl } from '../../../api/baseUrl';
 
 const ActivityCard = ({ activity, onEdit, onDelete, deleteLoading }) => {
   const { getCurrentTheme } = useTheme();
@@ -41,11 +42,11 @@ const ActivityCard = ({ activity, onEdit, onDelete, deleteLoading }) => {
   };
 
   const getImageUrl = (imagePath) => {
-    return `http://127.0.0.1:8000/storage/${imagePath}`;
+    return getFileUrl(imagePath);
   };
 
   const getVideoUrl = (videoPath) => {
-    return `http://127.0.0.1:8000/storage/${videoPath}`;
+    return getFileUrl(videoPath);
   };
 
   return (

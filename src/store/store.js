@@ -22,6 +22,7 @@ import discountsSlice from "../featuers/discounts-slice/discountsSlice";
 import feesSlice from "../featuers/fees-slice/feesSlice";
 import paymentsSlice from "../featuers/payments-slice/paymentsSlice";
 import feeAssignmentsSlice from "../featuers/fee-assignments-slice/feeAssignmentsSlice";
+import dashboardSlice from "../featuers/dashboard-slice/dashboardSlice";
 
 // Configure the store
 const store = configureStore({
@@ -49,6 +50,7 @@ const store = configureStore({
     fees: feesSlice,
     payments: paymentsSlice,
     feeAssignments: feeAssignmentsSlice,
+    dashboard: dashboardSlice,
   },
 });
 

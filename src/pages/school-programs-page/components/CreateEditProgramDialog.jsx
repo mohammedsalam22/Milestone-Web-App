@@ -22,6 +22,7 @@ import {
 } from '@mui/icons-material';
 import { useTheme } from '../../../theme/ThemeProvider';
 import { useTranslation } from 'react-i18next';
+import { getFileUrl } from '../../../api/baseUrl';
 import { createProgram, updateProgram, clearError } from '../../../featuers/programs-slice/programsSlice';
 
 const CreateEditProgramDialog = ({ open, onClose, program, isEdit }) => {
@@ -52,7 +53,7 @@ const CreateEditProgramDialog = ({ open, onClose, program, isEdit }) => {
           details: program.details || '',
           image: null,
         });
-        setImagePreview(program.image ? `http://127.0.0.1:8000/storage/${program.image}` : '');
+        setImagePreview(program.image ? getFileUrl(program.image) : '');
       } else {
         setFormData({
           title: '',
