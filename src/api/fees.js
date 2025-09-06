@@ -1,26 +1,28 @@
 import apiService from './apiService';
 
-export const getFeesApi = async () => {
-  const response = await apiService.get('/api/accounting/fees/');
-  return response.data;
-};
+export const feesApi = {
+  // Get all fees
+  getAllFees: (params = {}) => {
+    return apiService.get('/api/accounting/fees/', { params });
+  },
 
-export const getFeeByIdApi = async (id) => {
-  const response = await apiService.get(`/api/accounting/fees/${id}`);
-  return response.data;
-};
+  // Get fee by ID
+  getFeeById: (feeId) => {
+    return apiService.get(`/api/accounting/fees/${feeId}/`);
+  },
 
-export const createFeeApi = async (data) => {
-  const response = await apiService.post('/api/accounting/fees/', data);
-  return response.data;
-};
+  // Create new fee
+  createFee: (feeData) => {
+    return apiService.post('/api/accounting/fees/', feeData);
+  },
 
-export const updateFeeApi = async (id, data) => {
-  const response = await apiService.patch(`/api/accounting/fees/${id}/`, data);
-  return response.data;
-};
+  // Update fee
+  updateFee: (feeId, feeData) => {
+    return apiService.put(`/api/accounting/fees/${feeId}/`, feeData);
+  },
 
-export const deleteFeeApi = async (id) => {
-  const response = await apiService.delete(`/api/accounting/fees/${id}/`);
-  return response.data;
+  // Delete fee
+  deleteFee: (feeId) => {
+    return apiService.delete(`/api/accounting/fees/${feeId}/`);
+  }
 };

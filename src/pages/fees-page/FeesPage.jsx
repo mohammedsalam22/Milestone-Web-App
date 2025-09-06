@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { fetchFees, createFee, updateFee, deleteFee } from '../../featuers/fees-slice/feesSlice';
+import { fetchAllFees, createFee, updateFee, deleteFee } from '../../featuers/fees-slice/feesSlice';
 import {
   FeesHeader,
   FeesTable,
@@ -47,7 +47,7 @@ const FeesPage = () => {
   const [sortBy, setSortBy] = useState('name');
 
   useEffect(() => {
-    dispatch(fetchFees());
+    dispatch(fetchAllFees());
   }, [dispatch]);
 
   const handleCreateClick = () => {

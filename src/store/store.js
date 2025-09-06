@@ -20,6 +20,8 @@ import attendancesSlice from "../featuers/attendances-slice/attendancesSlice";
 import marksSlice from "../featuers/marks-slice/marksSlice";
 import discountsSlice from "../featuers/discounts-slice/discountsSlice";
 import feesSlice from "../featuers/fees-slice/feesSlice";
+import paymentsSlice from "../featuers/payments-slice/paymentsSlice";
+import feeAssignmentsSlice from "../featuers/fee-assignments-slice/feeAssignmentsSlice";
 
 // Configure the store
 const store = configureStore({
@@ -45,6 +47,8 @@ const store = configureStore({
     marks: marksSlice,
     discounts: discountsSlice,
     fees: feesSlice,
+    payments: paymentsSlice,
+    feeAssignments: feeAssignmentsSlice,
   },
 });
 

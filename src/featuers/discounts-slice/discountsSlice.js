@@ -1,90 +1,70 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { 
-  getDiscountsApi, 
-  getDiscountByIdApi, 
-  createDiscountApi, 
-  updateDiscountApi, 
-  deleteDiscountApi 
-} from '../../api/discounts';
+import { discountsApi } from '../../api/discounts';
 
-// Async thunk for fetching all discounts
-export const fetchDiscounts = createAsyncThunk(
-  'discounts/fetchDiscounts',
-  async (_, { rejectWithValue }) => {
+// Async thunks
+export const fetchAllDiscounts = createAsyncThunk(
+  'discounts/fetchAllDiscounts',
+  async (params, { rejectWithValue }) => {
     try {
-      const data = await getDiscountsApi();
-      return data;
+      const response = await discountsApi.getAllDiscounts(params);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.detail || 'Failed to fetch discounts.'
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch discounts');
     }
   }
 );
 
-// Async thunk for fetching individual discount
 export const fetchDiscountById = createAsyncThunk(
   'discounts/fetchDiscountById',
-  async (id, { rejectWithValue }) => {
+  async (discountId, { rejectWithValue }) => {
     try {
-      const data = await getDiscountByIdApi(id);
-      return data;
+      const response = await discountsApi.getDiscountById(discountId);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.detail || 'Failed to fetch discount.'
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch discount');
     }
   }
 );
 
-// Async thunk for creating discount
 export const createDiscount = createAsyncThunk(
   'discounts/createDiscount',
   async (discountData, { rejectWithValue }) => {
     try {
-      const data = await createDiscountApi(discountData);
-      return data;
+      const response = await discountsApi.createDiscount(discountData);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.detail || 'Failed to create discount.'
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to create discount');
     }
   }
 );
 
-// Async thunk for updating discount
 export const updateDiscount = createAsyncThunk(
   'discounts/updateDiscount',
-  async ({ id, data }, { rejectWithValue }) => {
+  async ({ discountId, discountData }, { rejectWithValue }) => {
     try {
-      const response = await updateDiscountApi(id, data);
-      return { id, data: response };
+      const response = await discountsApi.updateDiscount(discountId, discountData);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.detail || 'Failed to update discount.'
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to update discount');
     }
   }
 );
 
-// Async thunk for deleting discount
 export const deleteDiscount = createAsyncThunk(
   'discounts/deleteDiscount',
-  async (id, { rejectWithValue }) => {
+  async (discountId, { rejectWithValue }) => {
     try {
-      await deleteDiscountApi(id);
-      return id;
+      await discountsApi.deleteDiscount(discountId);
+      return discountId;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.detail || 'Failed to delete discount.'
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete discount');
     }
   }
 );
 
 const initialState = {
-  discounts: [],
-  selectedDiscount: null,
+  allDiscounts: [],
+  currentDiscount: null,
   loading: false,
   error: null,
 };
@@ -93,43 +73,43 @@ const discountsSlice = createSlice({
   name: 'discounts',
   initialState,
   reducers: {
-    clearSelectedDiscount: (state) => {
-      state.selectedDiscount = null;
-    },
     clearError: (state) => {
       state.error = null;
+    },
+    clearCurrentDiscount: (state) => {
+      state.currentDiscount = null;
     },
   },
   extraReducers: (builder) => {
     builder
       // Fetch all discounts
-      .addCase(fetchDiscounts.pending, (state) => {
+      .addCase(fetchAllDiscounts.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchDiscounts.fulfilled, (state, action) => {
+      .addCase(fetchAllDiscounts.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
-        state.discounts = action.payload;
+        state.allDiscounts = action.payload;
       })
-      .addCase(fetchDiscounts.rejected, (state, action) => {
+      .addCase(fetchAllDiscounts.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to fetch discounts.';
+        state.error = action.payload;
       })
-      // Fetch individual discount
+      
+      // Fetch discount by ID
       .addCase(fetchDiscountById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchDiscountById.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
-        state.selectedDiscount = action.payload;
+        state.currentDiscount = action.payload;
       })
       .addCase(fetchDiscountById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to fetch discount.';
+        state.error = action.payload;
       })
+      
       // Create discount
       .addCase(createDiscount.pending, (state) => {
         state.loading = true;
@@ -137,13 +117,13 @@ const discountsSlice = createSlice({
       })
       .addCase(createDiscount.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
-        state.discounts.push(action.payload);
+        state.allDiscounts.push(action.payload);
       })
       .addCase(createDiscount.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to create discount.';
+        state.error = action.payload;
       })
+      
       // Update discount
       .addCase(updateDiscount.pending, (state) => {
         state.loading = true;
@@ -151,19 +131,16 @@ const discountsSlice = createSlice({
       })
       .addCase(updateDiscount.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
-        const index = state.discounts.findIndex(discount => discount.id === action.payload.id);
+        const index = state.allDiscounts.findIndex(discount => discount.id === action.payload.id);
         if (index !== -1) {
-          state.discounts[index] = action.payload.data;
-        }
-        if (state.selectedDiscount && state.selectedDiscount.id === action.payload.id) {
-          state.selectedDiscount = action.payload.data;
+          state.allDiscounts[index] = action.payload;
         }
       })
       .addCase(updateDiscount.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to update discount.';
+        state.error = action.payload;
       })
+      
       // Delete discount
       .addCase(deleteDiscount.pending, (state) => {
         state.loading = true;
@@ -171,18 +148,14 @@ const discountsSlice = createSlice({
       })
       .addCase(deleteDiscount.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
-        state.discounts = state.discounts.filter(discount => discount.id !== action.payload);
-        if (state.selectedDiscount && state.selectedDiscount.id === action.payload) {
-          state.selectedDiscount = null;
-        }
+        state.allDiscounts = state.allDiscounts.filter(discount => discount.id !== action.payload);
       })
       .addCase(deleteDiscount.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to delete discount.';
+        state.error = action.payload;
       });
   },
 });
 
-export const { clearSelectedDiscount, clearError } = discountsSlice.actions;
+export const { clearError, clearCurrentDiscount } = discountsSlice.actions;
 export default discountsSlice.reducer;

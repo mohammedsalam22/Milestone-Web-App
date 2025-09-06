@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { fetchDiscounts, createDiscount, updateDiscount, deleteDiscount } from '../../featuers/discounts-slice/discountsSlice';
+import { fetchAllDiscounts, createDiscount, updateDiscount, deleteDiscount } from '../../featuers/discounts-slice/discountsSlice';
 import {
   DiscountsHeader,
   DiscountsTable,
@@ -45,7 +45,7 @@ const DiscountsPage = () => {
   const [sortBy, setSortBy] = useState('name');
 
   useEffect(() => {
-    dispatch(fetchDiscounts());
+    dispatch(fetchAllDiscounts());
   }, [dispatch]);
 
   const handleCreateClick = () => {

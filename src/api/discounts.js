@@ -1,26 +1,28 @@
 import apiService from './apiService';
 
-export const getDiscountsApi = async () => {
-  const response = await apiService.get('/api/accounting/discounts/');
-  return response.data;
-};
+export const discountsApi = {
+  // Get all discounts
+  getAllDiscounts: (params = {}) => {
+    return apiService.get('/api/accounting/discounts/', { params });
+  },
 
-export const getDiscountByIdApi = async (id) => {
-  const response = await apiService.get(`/api/accounting/discounts/${id}`);
-  return response.data;
-};
+  // Get discount by ID
+  getDiscountById: (discountId) => {
+    return apiService.get(`/api/accounting/discounts/${discountId}/`);
+  },
 
-export const createDiscountApi = async (data) => {
-  const response = await apiService.post('/api/accounting/discounts/', data);
-  return response.data;
-};
+  // Create new discount
+  createDiscount: (discountData) => {
+    return apiService.post('/api/accounting/discounts/', discountData);
+  },
 
-export const updateDiscountApi = async (id, data) => {
-  const response = await apiService.patch(`/api/accounting/discounts/${id}/`, data);
-  return response.data;
-};
+  // Update discount
+  updateDiscount: (discountId, discountData) => {
+    return apiService.put(`/api/accounting/discounts/${discountId}/`, discountData);
+  },
 
-export const deleteDiscountApi = async (id) => {
-  const response = await apiService.delete(`/api/accounting/discounts/${id}/`);
-  return response.data;
+  // Delete discount
+  deleteDiscount: (discountId) => {
+    return apiService.delete(`/api/accounting/discounts/${discountId}/`);
+  }
 };

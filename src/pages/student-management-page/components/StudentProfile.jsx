@@ -34,11 +34,13 @@ import {
   Flag,
   AutoAwesome,
   CalendarToday,
+  AttachMoney,
 } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { fetchStudentById, deleteStudent } from '../../../featuers/students-slice/studentsSlice';
 import Student from '../../../models/Student';
 import AcademicSection from './AcademicSection';
+import FinancialSection from './FinancialSection';
 import StudentForm from '../../student-form-page/StudentForm';
 
 const StudentProfile = () => {
@@ -298,6 +300,7 @@ const StudentProfile = () => {
                 >
                   <Tab label="Personal Info" icon={<Person />} iconPosition="start" />
                   <Tab label="Academic Info" icon={<School />} iconPosition="start" />
+                  <Tab label="Financial Info" icon={<AttachMoney />} iconPosition="start" />
                   <Tab label="Father Info" icon={<Person />} iconPosition="start" />
                   <Tab label="Mother Info" icon={<Person />} iconPosition="start" />
                 </Tabs>
@@ -512,6 +515,10 @@ const StudentProfile = () => {
                 )}
 
                 {activeTab === 2 && (
+                  <FinancialSection studentId={student.id} />
+                )}
+
+                {activeTab === 3 && (
                   <Box>
                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: theme.palette.text.primary }}>
                       Father Information
@@ -611,7 +618,7 @@ const StudentProfile = () => {
                   </Box>
                 )}
 
-                {activeTab === 3 && (
+                {activeTab === 4 && (
                   <Box>
                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: theme.palette.text.primary }}>
                       Mother Information

@@ -1,90 +1,70 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { 
-  getFeesApi, 
-  getFeeByIdApi, 
-  createFeeApi, 
-  updateFeeApi, 
-  deleteFeeApi 
-} from '../../api/fees';
+import { feesApi } from '../../api/fees';
 
-// Async thunk for fetching all fees
-export const fetchFees = createAsyncThunk(
-  'fees/fetchFees',
-  async (_, { rejectWithValue }) => {
+// Async thunks
+export const fetchAllFees = createAsyncThunk(
+  'fees/fetchAllFees',
+  async (params, { rejectWithValue }) => {
     try {
-      const data = await getFeesApi();
-      return data;
+      const response = await feesApi.getAllFees(params);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.detail || 'Failed to fetch fees.'
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch fees');
     }
   }
 );
 
-// Async thunk for fetching individual fee
 export const fetchFeeById = createAsyncThunk(
   'fees/fetchFeeById',
-  async (id, { rejectWithValue }) => {
+  async (feeId, { rejectWithValue }) => {
     try {
-      const data = await getFeeByIdApi(id);
-      return data;
+      const response = await feesApi.getFeeById(feeId);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.detail || 'Failed to fetch fee.'
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch fee');
     }
   }
 );
 
-// Async thunk for creating fee
 export const createFee = createAsyncThunk(
   'fees/createFee',
   async (feeData, { rejectWithValue }) => {
     try {
-      const data = await createFeeApi(feeData);
-      return data;
+      const response = await feesApi.createFee(feeData);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.detail || 'Failed to create fee.'
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to create fee');
     }
   }
 );
 
-// Async thunk for updating fee
 export const updateFee = createAsyncThunk(
   'fees/updateFee',
-  async ({ id, data }, { rejectWithValue }) => {
+  async ({ feeId, feeData }, { rejectWithValue }) => {
     try {
-      const response = await updateFeeApi(id, data);
-      return { id, data: response };
+      const response = await feesApi.updateFee(feeId, feeData);
+      return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.detail || 'Failed to update fee.'
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to update fee');
     }
   }
 );
 
-// Async thunk for deleting fee
 export const deleteFee = createAsyncThunk(
   'fees/deleteFee',
-  async (id, { rejectWithValue }) => {
+  async (feeId, { rejectWithValue }) => {
     try {
-      await deleteFeeApi(id);
-      return id;
+      await feesApi.deleteFee(feeId);
+      return feeId;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.detail || 'Failed to delete fee.'
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete fee');
     }
   }
 );
 
 const initialState = {
-  fees: [],
-  selectedFee: null,
+  allFees: [],
+  currentFee: null,
   loading: false,
   error: null,
 };
@@ -93,43 +73,43 @@ const feesSlice = createSlice({
   name: 'fees',
   initialState,
   reducers: {
-    clearSelectedFee: (state) => {
-      state.selectedFee = null;
-    },
     clearError: (state) => {
       state.error = null;
+    },
+    clearCurrentFee: (state) => {
+      state.currentFee = null;
     },
   },
   extraReducers: (builder) => {
     builder
       // Fetch all fees
-      .addCase(fetchFees.pending, (state) => {
+      .addCase(fetchAllFees.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchFees.fulfilled, (state, action) => {
+      .addCase(fetchAllFees.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
-        state.fees = action.payload;
+        state.allFees = action.payload;
       })
-      .addCase(fetchFees.rejected, (state, action) => {
+      .addCase(fetchAllFees.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to fetch fees.';
+        state.error = action.payload;
       })
-      // Fetch individual fee
+      
+      // Fetch fee by ID
       .addCase(fetchFeeById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchFeeById.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
-        state.selectedFee = action.payload;
+        state.currentFee = action.payload;
       })
       .addCase(fetchFeeById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to fetch fee.';
+        state.error = action.payload;
       })
+      
       // Create fee
       .addCase(createFee.pending, (state) => {
         state.loading = true;
@@ -137,13 +117,13 @@ const feesSlice = createSlice({
       })
       .addCase(createFee.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
-        state.fees.push(action.payload);
+        state.allFees.push(action.payload);
       })
       .addCase(createFee.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to create fee.';
+        state.error = action.payload;
       })
+      
       // Update fee
       .addCase(updateFee.pending, (state) => {
         state.loading = true;
@@ -151,19 +131,16 @@ const feesSlice = createSlice({
       })
       .addCase(updateFee.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
-        const index = state.fees.findIndex(fee => fee.id === action.payload.id);
+        const index = state.allFees.findIndex(fee => fee.id === action.payload.id);
         if (index !== -1) {
-          state.fees[index] = action.payload.data;
-        }
-        if (state.selectedFee && state.selectedFee.id === action.payload.id) {
-          state.selectedFee = action.payload.data;
+          state.allFees[index] = action.payload;
         }
       })
       .addCase(updateFee.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to update fee.';
+        state.error = action.payload;
       })
+      
       // Delete fee
       .addCase(deleteFee.pending, (state) => {
         state.loading = true;
@@ -171,18 +148,14 @@ const feesSlice = createSlice({
       })
       .addCase(deleteFee.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
-        state.fees = state.fees.filter(fee => fee.id !== action.payload);
-        if (state.selectedFee && state.selectedFee.id === action.payload) {
-          state.selectedFee = null;
-        }
+        state.allFees = state.allFees.filter(fee => fee.id !== action.payload);
       })
       .addCase(deleteFee.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to delete fee.';
+        state.error = action.payload;
       });
   },
 });
 
-export const { clearSelectedFee, clearError } = feesSlice.actions;
+export const { clearError, clearCurrentFee } = feesSlice.actions;
 export default feesSlice.reducer;
