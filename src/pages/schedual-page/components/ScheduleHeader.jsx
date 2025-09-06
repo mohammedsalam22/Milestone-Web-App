@@ -11,7 +11,7 @@ import { Save as SaveIcon, Refresh as RefreshIcon } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 
 const ScheduleHeader = ({ 
-  selectedGrade, 
+  selectedSection, 
   onSave, 
   onRefresh, 
   loading, 
@@ -21,14 +21,14 @@ const ScheduleHeader = ({
 }) => {
   const theme = useTheme();
 
-  if (!selectedGrade) {
+  if (!selectedSection) {
     return (
       <Box sx={{ mb: 3 }}>
         <Typography variant="h5" gutterBottom sx={{ color: theme.palette.text.primary }}>
           Schedule Management
         </Typography>
         <Typography variant="body1" color="textSecondary">
-          Please select a grade to manage its schedule
+          Please select a section to manage its schedule
         </Typography>
       </Box>
     );
@@ -47,29 +47,29 @@ const ScheduleHeader = ({
             fontWeight: 600,
             mb: 1
           }}>
-            {selectedGrade.name} Schedule
+            Section {selectedSection.name} Schedule
           </Typography>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                         <Chip
-               label={selectedGrade.study_stage.name}
-               size="small"
-               variant="outlined"
-               color="primary"
-               sx={{
-                 fontSize: '0.75rem',
-                 height: 24,
-               }}
-             />
-             <Chip
-               label={selectedGrade.study_year.name}
-               size="small"
-               variant="outlined"
-               color="secondary"
-               sx={{
-                 fontSize: '0.75rem',
-                 height: 24,
-               }}
-             />
+            <Chip
+              label={selectedSection.grade?.study_stage?.name}
+              size="small"
+              variant="outlined"
+              color="primary"
+              sx={{
+                fontSize: '0.75rem',
+                height: 24,
+              }}
+            />
+            <Chip
+              label={selectedSection.grade?.name}
+              size="small"
+              variant="outlined"
+              color="secondary"
+              sx={{
+                fontSize: '0.75rem',
+                height: 24,
+              }}
+            />
           </Box>
         </Box>
         

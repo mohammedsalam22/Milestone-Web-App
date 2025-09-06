@@ -9,6 +9,15 @@ export const getAllSchedulesApi = async () => {
   }
 };
 
+export const getSchedulesBySectionApi = async (sectionId) => {
+  try {
+    const response = await apiService.get(`/api/school/schedules?section=${sectionId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const extractGradesFromSchedules = (schedules) => {
   const gradeMap = new Map();
   
@@ -24,6 +33,10 @@ export const extractGradesFromSchedules = (schedules) => {
 
 export const filterSchedulesByGrade = (schedules, gradeId) => {
   return schedules.filter(schedule => schedule.section.grade.id === gradeId);
+};
+
+export const filterSchedulesBySection = (schedules, sectionId) => {
+  return schedules.filter(schedule => schedule.section.id === sectionId);
 };
 
 export const createScheduleApi = async (scheduleData) => {

@@ -26,6 +26,7 @@ const PeriodDialog = ({
   day = '', 
   startTime = '', 
   endTime = '', 
+  sectionId = null,
   mode = 'add' 
 }) => {
   const theme = useTheme();
@@ -52,13 +53,13 @@ const PeriodDialog = ({
     } else if (day && startTime && endTime && mode === 'add') {
       setFormData({
         teacher_id: '',
-        section_id: '',
+        section_id: sectionId || '',
         day: day,
         start_time: startTime,
         end_time: endTime,
       });
     }
-  }, [schedule, day, startTime, endTime, mode]);
+  }, [schedule, day, startTime, endTime, sectionId, mode]);
 
   const handleInputChange = (field) => (event) => {
     setFormData(prev => ({
@@ -183,18 +184,20 @@ const PeriodDialog = ({
                  label="Section"
                  disabled={mode === 'edit'}
                >
-                {sections.map((section) => (
-                  <MenuItem key={section.id} value={section.id}>
-                    <Box>
-                      <Typography variant="body2">
-                        Section {section.name}
-                      </Typography>
-                      <Typography variant="caption" color="textSecondary">
-                        {section.grade?.name} - {section.grade?.study_stage?.name}
-                      </Typography>
-                    </Box>
-                  </MenuItem>
-                ))}
+                {sections
+                  .filter(section => section.id === sectionId) // Only show the selected section
+                  .map((section) => (
+                    <MenuItem key={section.id} value={section.id}>
+                      <Box>
+                        <Typography variant="body2">
+                          Section {section.name}
+                        </Typography>
+                        <Typography variant="caption" color="textSecondary">
+                          {section.grade?.name} - {section.grade?.study_stage?.name}
+                        </Typography>
+                      </Box>
+                    </MenuItem>
+                  ))}
               </Select>
             </FormControl>
             

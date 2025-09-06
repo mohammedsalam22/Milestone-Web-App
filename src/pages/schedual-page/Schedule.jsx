@@ -5,16 +5,17 @@ import { useTheme } from '@mui/material/styles';
 
 import {
   fetchAllSchedules,
-  fetchGrades,
+  fetchSections,
+  fetchSchedulesBySection,
   createSchedule,
   updateSchedule,
   deleteSchedule,
-  setSelectedGrade,
-  clearSelectedGrade,
+  setSelectedSection,
+  clearSelectedSection,
   clearError,
 } from '../../featuers/schedule-slice/scheduleSlice';
 
-import GradeSelector from './components/GradeSelector';
+import SectionSelector from './components/SectionSelector';
 import ScheduleGrid from './components/ScheduleGrid';
 import PeriodDialog from './components/PeriodDialog';
 import ScheduleHeader from './components/ScheduleHeader';
@@ -25,7 +26,7 @@ const Schedule = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   
-  const { grades, selectedGrade, selectedGradeSchedules, loading, gradesLoading, error, allSchedules } = useSelector(
+  const { sections, selectedSection, selectedSectionSchedules, loading, sectionsLoading, error, allSchedules } = useSelector(
     (state) => state.schedule
   );
 
@@ -37,21 +38,27 @@ const Schedule = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [scheduleToDelete, setScheduleToDelete] = useState(null);
 
-  // Fetch grades and schedules on component mount
+  // Fetch sections and schedules on component mount
   useEffect(() => {
-    dispatch(fetchGrades());
+    dispatch(fetchSections());
     dispatch(fetchAllSchedules());
   }, [dispatch]);
 
   // No need for local schedule management since we're working with individual schedule items
 
-  const handleGradeChange = (grade) => {
-    dispatch(setSelectedGrade(grade));
+  const handleSectionChange = (section) => {
+    dispatch(setSelectedSection(section));
+    if (section) {
+      dispatch(fetchSchedulesBySection(section.id));
+    }
   };
 
   const handleRefresh = () => {
-    dispatch(fetchGrades());
+    dispatch(fetchSections());
     dispatch(fetchAllSchedules());
+    if (selectedSection) {
+      dispatch(fetchSchedulesBySection(selectedSection.id));
+    }
   };
 
   const handleSave = async () => {
@@ -60,7 +67,12 @@ const Schedule = () => {
 
   const handleAddPeriod = (day, startTime, endTime) => {
     setDialogMode('add');
-    setDialogData({ day, startTime, endTime });
+    setDialogData({ 
+      day, 
+      startTime, 
+      endTime, 
+      section_id: selectedSection?.id 
+    });
     setDialogOpen(true);
   };
 
@@ -79,6 +91,10 @@ const Schedule = () => {
   const handleConfirmDelete = async () => {
     try {
       await dispatch(deleteSchedule(scheduleToDelete.id)).unwrap();
+      // Refresh the section schedules after deleting
+      if (selectedSection) {
+        dispatch(fetchSchedulesBySection(selectedSection.id));
+      }
       setDeleteDialogOpen(false);
       setScheduleToDelete(null);
     } catch (error) {
@@ -119,6 +135,10 @@ const Schedule = () => {
         
         console.log('Creating new schedule with data:', validatedData);
         await dispatch(createSchedule(validatedData)).unwrap();
+        // Refresh the section schedules after creating
+        if (selectedSection) {
+          dispatch(fetchSchedulesBySection(selectedSection.id));
+        }
       } else if (dialogMode === 'edit') {
         // PeriodDialog already sends only teacher_id, start_time, end_time for edit mode
         const updateData = {
@@ -129,6 +149,10 @@ const Schedule = () => {
         
         console.log('Updating schedule with ID:', dialogData.schedule.id, 'and data:', updateData);
         await dispatch(updateSchedule({ scheduleId: dialogData.schedule.id, scheduleData: updateData })).unwrap();
+        // Refresh the section schedules after updating
+        if (selectedSection) {
+          dispatch(fetchSchedulesBySection(selectedSection.id));
+        }
       }
       setDialogOpen(false);
       setDialogData({});
@@ -153,7 +177,7 @@ const Schedule = () => {
       backgroundColor: theme.palette.background.default,
        minHeight: '100vh',
      }}>
-      {/* Page Header with Grade Selector */}
+      {/* Page Header with Section Selector */}
       <Box sx={{ 
         mb: 4,
         display: 'flex',
@@ -166,11 +190,12 @@ const Schedule = () => {
           Schedule
         </Typography>
         
-        <GradeSelector
-          grades={grades}
-          selectedGrade={selectedGrade}
-          onGradeChange={handleGradeChange}
-          loading={gradesLoading}
+        <SectionSelector
+          sections={sections}
+          selectedSection={selectedSection}
+          onSectionChange={handleSectionChange}
+          loading={sectionsLoading}
+          error={error}
         />
       </Box>
 
@@ -187,7 +212,7 @@ const Schedule = () => {
        )}
 
       {/* Main Content */}
-      {selectedGrade && (
+      {selectedSection && (
         <Box sx={{ 
           backgroundColor: theme.palette.background.paper,
           borderRadius: 3,
@@ -196,7 +221,7 @@ const Schedule = () => {
           border: `1px solid ${theme.palette.divider}`
         }}>
           <ScheduleHeader
-            selectedGrade={selectedGrade}
+            selectedSection={selectedSection}
             onSave={handleSave}
             onRefresh={handleRefresh}
             loading={loading}
@@ -211,8 +236,8 @@ const Schedule = () => {
             </Box>
           ) : (
             <ScheduleGrid
-              schedules={selectedGradeSchedules}
-              selectedGrade={selectedGrade}
+              schedules={selectedSectionSchedules}
+              selectedSection={selectedSection}
               onAddPeriod={handleAddPeriod}
               onEditPeriod={handleEditPeriod}
               onDeletePeriod={handleDeletePeriod}
@@ -222,7 +247,7 @@ const Schedule = () => {
       )}
 
       {/* Empty States */}
-      {!selectedGrade && grades?.length > 0 && !gradesLoading && (
+      {!selectedSection && sections?.length > 0 && !sectionsLoading && (
         <Box sx={{ 
           mt: 6, 
           textAlign: 'center',
@@ -233,15 +258,15 @@ const Schedule = () => {
           border: `1px solid ${theme.palette.divider}`
         }}>
           <Typography variant="h5" color="textSecondary" gutterBottom sx={{ fontWeight: 500 }}>
-            Select a Grade
+            Select a Section
           </Typography>
           <Typography variant="body1" color="textSecondary" sx={{ opacity: 0.8 }}>
-            Choose a grade from the dropdown above to view and manage its schedule
+            Choose a section from the dropdown above to view and manage its schedule
           </Typography>
         </Box>
       )}
 
-      {!grades?.length && !gradesLoading && !loading && (
+      {!sections?.length && !sectionsLoading && !loading && (
         <Box sx={{ 
           mt: 6, 
           textAlign: 'center',
@@ -252,10 +277,10 @@ const Schedule = () => {
           border: `1px solid ${theme.palette.divider}`
         }}>
           <Typography variant="h5" color="textSecondary" gutterBottom sx={{ fontWeight: 500 }}>
-            No Grades Available
+            No Sections Available
           </Typography>
           <Typography variant="body1" color="textSecondary" sx={{ opacity: 0.8 }}>
-            No grades are currently available. Please check your API connection or create grades first.
+            No sections are currently available. Please check your API connection or create sections first.
           </Typography>
         </Box>
       )}
@@ -269,6 +294,7 @@ const Schedule = () => {
          day={dialogData.day}
          startTime={dialogData.startTime}
          endTime={dialogData.endTime}
+         sectionId={dialogData.section_id}
          mode={dialogMode}
        />
 

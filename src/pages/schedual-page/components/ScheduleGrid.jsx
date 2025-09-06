@@ -15,7 +15,7 @@ import {
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 
-const ScheduleGrid = ({ schedules, selectedGrade, onAddPeriod, onEditPeriod, onDeletePeriod }) => {
+const ScheduleGrid = ({ schedules, selectedSection, onAddPeriod, onEditPeriod, onDeletePeriod }) => {
   const theme = useTheme();
 
   const days = ['sun', 'mon', 'tue', 'wed', 'thu'];

@@ -1,20 +1,22 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
   getAllSchedulesApi,
+  getSchedulesBySectionApi,
   createScheduleApi,
   updateScheduleApi,
   deleteScheduleApi,
   filterSchedulesByGrade,
+  filterSchedulesBySection,
 } from '../../api/schedule';
-import { getGradesApi } from '../../api/grades';
+import { getSectionsApi } from '../../api/sections';
 
 const initialState = {
   allSchedules: [],
-  grades: [],
-  selectedGrade: null,
-  selectedGradeSchedules: [],
+  sections: [],
+  selectedSection: null,
+  selectedSectionSchedules: [],
   loading: false,
-  gradesLoading: false,
+  sectionsLoading: false,
   error: null,
 };
 
@@ -67,14 +69,26 @@ export const deleteSchedule = createAsyncThunk(
   }
 );
 
-export const fetchGrades = createAsyncThunk(
-  'schedule/fetchGrades',
-  async (_, { rejectWithValue }) => {
+export const fetchSchedulesBySection = createAsyncThunk(
+  'schedule/fetchSchedulesBySection',
+  async (sectionId, { rejectWithValue }) => {
     try {
-      const data = await getGradesApi();
+      const data = await getSchedulesBySectionApi(sectionId);
       return data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch grades');
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch schedules for section');
+    }
+  }
+);
+
+export const fetchSections = createAsyncThunk(
+  'schedule/fetchSections',
+  async (_, { rejectWithValue }) => {
+    try {
+      const data = await getSectionsApi();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch sections');
     }
   }
 );
@@ -83,18 +97,18 @@ const scheduleSlice = createSlice({
   name: 'schedule',
   initialState,
   reducers: {
-    setSelectedGrade: (state, action) => {
-      state.selectedGrade = action.payload;
+    setSelectedSection: (state, action) => {
+      state.selectedSection = action.payload;
       if (action.payload) {
-        // Filter schedules for the selected grade
-        state.selectedGradeSchedules = filterSchedulesByGrade(state.allSchedules, action.payload.id);
+        // Filter schedules for the selected section
+        state.selectedSectionSchedules = filterSchedulesBySection(state.allSchedules, action.payload.id);
       } else {
-        state.selectedGradeSchedules = [];
+        state.selectedSectionSchedules = [];
       }
     },
-    clearSelectedGrade: (state) => {
-      state.selectedGrade = null;
-      state.selectedGradeSchedules = [];
+    clearSelectedSection: (state) => {
+      state.selectedSection = null;
+      state.selectedSectionSchedules = [];
     },
     clearError: (state) => {
       state.error = null;
@@ -110,27 +124,40 @@ const scheduleSlice = createSlice({
       .addCase(fetchAllSchedules.fulfilled, (state, action) => {
         state.loading = false;
         state.allSchedules = action.payload;
-        // If a grade is selected, update its schedules
-        if (state.selectedGrade) {
-          const filteredSchedules = filterSchedulesByGrade(action.payload, state.selectedGrade.id);
-          state.selectedGradeSchedules = filteredSchedules;
+        // If a section is selected, update its schedules
+        if (state.selectedSection) {
+          const filteredSchedules = filterSchedulesBySection(action.payload, state.selectedSection.id);
+          state.selectedSectionSchedules = filteredSchedules;
         }
       })
       .addCase(fetchAllSchedules.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      // Fetch grades
-      .addCase(fetchGrades.pending, (state) => {
-        state.gradesLoading = true;
+      // Fetch sections
+      .addCase(fetchSections.pending, (state) => {
+        state.sectionsLoading = true;
         state.error = null;
       })
-      .addCase(fetchGrades.fulfilled, (state, action) => {
-        state.gradesLoading = false;
-        state.grades = action.payload;
+      .addCase(fetchSections.fulfilled, (state, action) => {
+        state.sectionsLoading = false;
+        state.sections = action.payload;
       })
-      .addCase(fetchGrades.rejected, (state, action) => {
-        state.gradesLoading = false;
+      .addCase(fetchSections.rejected, (state, action) => {
+        state.sectionsLoading = false;
+        state.error = action.payload;
+      })
+      // Fetch schedules by section
+      .addCase(fetchSchedulesBySection.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSchedulesBySection.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedSectionSchedules = action.payload;
+      })
+      .addCase(fetchSchedulesBySection.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload;
       })
         // Create schedule
@@ -142,18 +169,18 @@ const scheduleSlice = createSlice({
           state.loading = false;
           // Add the new schedule to allSchedules
           state.allSchedules.push(action.payload);
-          // If a grade is selected, check if the new schedule belongs to that grade
-          if (state.selectedGrade) {
+          // If a section is selected, check if the new schedule belongs to that section
+          if (state.selectedSection) {
             const newSchedule = action.payload;
-            if (newSchedule.section.grade.id === state.selectedGrade.id) {
-              state.selectedGradeSchedules.push(newSchedule);
+            if (newSchedule.section.id === state.selectedSection.id) {
+              state.selectedSectionSchedules.push(newSchedule);
             }
           }
-          // Add the grade to grades list if it doesn't exist
+          // Add the section to sections list if it doesn't exist
           const newSchedule = action.payload;
-          const gradeExists = state.grades.some(grade => grade.id === newSchedule.section.grade.id);
-          if (!gradeExists) {
-            state.grades.push(newSchedule.section.grade);
+          const sectionExists = state.sections.some(section => section.id === newSchedule.section.id);
+          if (!sectionExists) {
+            state.sections.push(newSchedule.section);
           }
         })
         .addCase(createSchedule.rejected, (state, action) => {
@@ -172,11 +199,11 @@ const scheduleSlice = createSlice({
           if (index !== -1) {
             state.allSchedules[index] = action.payload;
           }
-          // If a grade is selected, update the schedule in selectedGradeSchedules
-          if (state.selectedGrade) {
-            const selectedIndex = state.selectedGradeSchedules.findIndex(s => s.id === action.payload.id);
+          // If a section is selected, update the schedule in selectedSectionSchedules
+          if (state.selectedSection) {
+            const selectedIndex = state.selectedSectionSchedules.findIndex(s => s.id === action.payload.id);
             if (selectedIndex !== -1) {
-              state.selectedGradeSchedules[selectedIndex] = action.payload;
+              state.selectedSectionSchedules[selectedIndex] = action.payload;
             }
           }
         })
@@ -193,9 +220,9 @@ const scheduleSlice = createSlice({
           state.loading = false;
           // Remove the schedule from allSchedules
           state.allSchedules = state.allSchedules.filter(s => s.id !== action.payload);
-          // If a grade is selected, remove the schedule from selectedGradeSchedules
-          if (state.selectedGrade) {
-            state.selectedGradeSchedules = state.selectedGradeSchedules.filter(s => s.id !== action.payload);
+          // If a section is selected, remove the schedule from selectedSectionSchedules
+          if (state.selectedSection) {
+            state.selectedSectionSchedules = state.selectedSectionSchedules.filter(s => s.id !== action.payload);
           }
         })
         .addCase(deleteSchedule.rejected, (state, action) => {
@@ -205,5 +232,5 @@ const scheduleSlice = createSlice({
   },
 });
 
-export const { setSelectedGrade, clearSelectedGrade, clearError } = scheduleSlice.actions;
+export const { setSelectedSection, clearSelectedSection, clearError } = scheduleSlice.actions;
 export default scheduleSlice.reducer; 
