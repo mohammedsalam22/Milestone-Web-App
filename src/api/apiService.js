@@ -3,7 +3,7 @@ import store from '../store/store';
 import { logout } from '../featuers/login-slice/loginSlice';
 
 const apiService = axios.create({
-  baseURL: 'http://10.199.2.81:8000/',
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/',
   headers: {
     'Content-Type': 'application/json',
   },
