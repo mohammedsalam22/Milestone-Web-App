@@ -114,7 +114,6 @@ api/students.js  →  featuers/students-slice/  →  pages/student-management-pa
 - Page-local components live under `pages/<page>/components/`; only genuinely shared UI is
   promoted to top-level `components/`.
 - User-facing strings go through `t()` — see `public/locale/{en,ar}/translation.json`.
-  (Not yet universal; see the roadmap.)
 
 ---
 
@@ -214,21 +213,3 @@ npm test
 percentage vs. fixed discounts, installment rounding, negative-balance guards, and validation.
 Business logic that involves money lives in `src/lib/` specifically so it can be tested
 independently of the UI.
-
-**Known issue:** two suites (`src/App.test.js` and `src/api/__tests__/dashboard.test.js`)
-currently fail to run. Both import modules that pull in axios v1, which ships ESM that Create
-React App's Jest config does not transform (`Cannot use import statement outside a module`).
-`src/App.test.js` is also leftover Create React App boilerplate asserting on a "learn react"
-link that no longer exists. See the roadmap below.
-
----
-
-## Roadmap
-
-- [ ] Fix the axios ESM transform so API-layer tests run; remove the CRA boilerplate test
-- [ ] Add component-level tests for the role-based flows in Marks and Attendance
-- [ ] Complete i18n coverage — 9 pages still contain hardcoded English strings
-      (Schedule, StudentForm, StaffForm, StudentManagement, PlacementTests, Reports, Classes, Courses)
-- [ ] Add an error boundary and a 404 route
-- [ ] Remove remaining debug `console.log` calls from request handlers
-- [ ] Add screenshots to this README
